@@ -16,7 +16,7 @@ exists for specific values, or when you would have to re-implement the productio
 
 - **Properties complement examples, they do not replace them.** Keep one or two named examples.
 - State the property in words first, in the test list, tagged `[property]`:
-  `- [ ] [property] round trip: any valid Luhn number, parsed then written back, is the same String`.
+  `- [ ] [property] any valid Luhn number n → parse(n).toString() is n`.
 - **Generators encode the preconditions**, live next to the builders, are named after the domain
   (`TerrainRicheEnGalinettesGenerator`), and generalise beyond the obvious boundary
   (`Gen.Choose(-1000, 0)` for "no galinettes", not only `0`).
@@ -24,7 +24,7 @@ exists for specific values, or when you would have to re-implement the productio
   exception in code that already uses them) and the saved state.
 - The property name reads as the rule: `SurNImporteQuelTerrainSansGalinettesLaPartieNeDémarrePas`.
 - When a property fails, keep the shrunk counter-example as a new named example test.
-- In RED, **one property is one test** (the guard counts it once, whatever the number of runs).
+- In RED, **one property is one test** (the guardian counts it once, whatever the number of runs).
   In GREEN, a property may demand a more general implementation than fake it.
 
 ## junit-quickcheck (Java): a round trip

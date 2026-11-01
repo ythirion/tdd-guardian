@@ -3,7 +3,7 @@
 A Claude Code plugin that **enforces** the Red-Green-Refactor cycle on the agent instead of merely
 asking for it. A skill describes the process; hooks enforce it by blocking the writes the current
 phase forbids. Every block explains the rule that was broken, why it exists, and what to do instead:
-the plugin is a teaching aid as much as a guard.
+the plugin is a teaching aid as much as a guardian.
 
 It targets what coding agents do when left alone with TDD:
 
@@ -34,7 +34,7 @@ so they run on macOS, Linux and Windows). The plugin's own test suite needs Node
 | `/tdd:next` | human or agent | Moves one phase forward if the exit conditions hold, otherwise says which one failed |
 | `/tdd:status` | anyone | Mode, phase, current test, acceptance test, list progress, last run, justified mocks, review checklist |
 | `/tdd:mutate` | anyone | Mutation testing on the files touched in the feature; survivors become list items |
-| `/tdd:off` | **human only** | Turns the guard off |
+| `/tdd:off` | **human only** | Turns the guardian off |
 
 The agent can chain cycles by running `node <plugin>/scripts/tdd.js next` itself: the script checks
 the exit conditions, the agent cannot talk its way past them.
@@ -69,7 +69,7 @@ stateDiagram-v2
 ```
 
 Leaving REFACTOR always requires a green unit suite, an assertion count no lower than on entering
-REFACTOR, and the current item ticked. From any phase, 👤 `/tdd:off` turns the guard off.
+REFACTOR, and the current item ticked. From any phase, 👤 `/tdd:off` turns the guardian off.
 
 | Phase | Writable | Exit condition checked by `tdd.js next` |
 | --- | --- | --- |
@@ -108,7 +108,7 @@ port, written once, reused, and asserted on through its state (`orders.saved()`,
 the real adapter so the Fake cannot lie. See `skills/tdd/references/fakes.md` and the outside-in example.
 
 Under `mockPolicy: justify`, a mocking-library call in a new test is blocked unless the same or the
-previous line carries `tdd-guard: allow-mock <reason>`; justified mocks are listed by `/tdd:status`
+previous line carries `tdd-guardian: allow-mock <reason>`; justified mocks are listed by `/tdd:status`
 for review. Under `forbid`, they are blocked even with a reason. Patterns for Jest, Vitest, Sinon,
 node:test, Mockito, unittest.mock, Moq and NSubstitute are shipped.
 
@@ -171,12 +171,12 @@ agent before approving the list.
     test in RED/ACCEPTANCE; lets go when `stop_hook_active` is set;
   - `session-start.js` (SessionStart): reminds the agent of the mode, phase, tests and rules;
   - `human-gate.js` (UserPromptSubmit): performs `/tdd:approve` and `/tdd:off`, typed by the human.
-- `examples/` (Java 21, Maven): a Luhn number inside-out, from the non-passing case to a
-  parse/toString round-trip property with junit-quickcheck, and "place an order" outside-in, opening
-  with a refused order (an error as a value) then a Fake, a contract test shared with a file adapter,
-  a builder with Object Mothers and business assertions. Each example keeps its test list in
-  `.tdd/test-list.md`, with what each item drives. Both are replayed end to end by the test suite
-  (skipped when Maven is not installed).
+- `examples/` (Java 21, Maven), each with its test list in `.tdd/test-list.md` and replayed end to
+  end by the test suite (skipped without Maven):
+  - Luhn number, inside-out: `"" → not a Luhn number (Optional.empty())` first, a
+    `parse(n).toString() is n` round trip (junit-quickcheck) last;
+  - place an order, outside-in: `an order without lines → Refused` first, then a Fake, a contract
+    test shared with a file adapter, builders and business assertions.
 
 ## How "human only" works
 
@@ -188,10 +188,10 @@ agent command calling them. A human can still run them from their own terminal.
 
 ## Known limits
 
-- **The Bash guard is a heuristic, not a sandbox.** It parses common write forms; a determined agent
+- **The guardian's Bash hook is a heuristic, not a sandbox.** It parses common write forms; a determined agent
   can still write a file through a script (`node -e "fs.writeFileSync(...)"`, a Python one-liner,
   a build tool). The test-code hash catches test changes when leaving GREEN, but production code
-  written through such a script in RED is not detected. Use the guard with an agent that is
+  written through such a script in RED is not detected. Use the guardian with an agent that is
   cooperating, not one that is adversarial.
 - Tests, assertions and markers are counted with regexes, not an AST: a test declared through an
   unusual helper is not seen, and commented-out code is counted.

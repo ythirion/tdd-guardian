@@ -4,36 +4,30 @@ const path = require('node:path')
 
 const listPath = (root) => path.join(root, '.tdd', 'test-list.md')
 
-const ORDERING = `Order the items so that each one completes a part of the implementation, growing the thinnest
-complete implementation. Start with the non-passing case: it decides first how a failure is
-reported (an error as a value, such as Optional, Either or a Result type, rather than an exception).
-Under each item, say what it drives. Tag an item [property] when it states a rule over a range of
-inputs. No code here.
-Waiting for a human to run /tdd:approve.`
+const ORDERING = `One item = one precise example, "input → outcome", then the rule it shows if not obvious.
+Order them so that each example forces one more piece of code: the list grows the thinnest
+complete implementation. Start with the non-passing case: it decides how a refusal is returned,
+as a value (Optional.empty(), Refused, Either), not an exception. Tag a rule over a range of
+inputs [property]. No code here. Waiting for a human to run /tdd:approve.`
 
 const SKELETONS = {
   'inside-out': (feature) => `# Test list: ${feature}
 
-Mode: inside-out. Unit cases in business language, from the core rules outwards.
+Mode: inside-out, from the core rules outwards.
 ${ORDERING}
 
-- [ ] <the non-passing case: an input that is refused>
-      → drives: <the signature, and how the refusal is returned>
-- [ ] <the simplest accepted case>
-      → drives: <the part of the implementation this test adds>
+- [ ] <refused input> → <refused, e.g. Optional.empty()>
+- [ ] <simplest accepted input> → <outcome>
+- [ ] <next input> → <outcome>: <the rule it forces>
 `,
   'outside-in': (feature) => `# Test list: ${feature}
 
-Mode: outside-in. One "Scenario:" per acceptance test (Given/When/Then); the unit items it needs
-are indented below it and added as collaborators are discovered.
+Mode: outside-in. One "Scenario:" per acceptance test; its unit examples go indented below it,
+added as collaborators are discovered.
 ${ORDERING}
 
-- [ ] Scenario: <the non-passing case: a request that is refused>
-      Given <context> When <action> Then <it is refused, and nothing changes>
-      → drives: <the use case signature, and how the refusal is returned>
-- [ ] Scenario: <name>
-      Given <context> When <action> Then <outcome>
-      → drives: <the part of the implementation this scenario adds>
+- [ ] Scenario: <refused request> → <refused, e.g. Optional.empty() or Refused>, nothing changes
+- [ ] Scenario: <request> → <outcome>
 `,
 }
 

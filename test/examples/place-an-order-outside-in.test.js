@@ -101,7 +101,7 @@ describe('Example: place an order in Java, outside-in', () => {
     const listPath = path.join(s.root, '.tdd/test-list.md')
     const listNow = () => fs.readFileSync(listPath, 'utf8')
 
-    // The list as approved: the scenarios only. Unit items, with their "drives" line, are added as discovered.
+    // The list as approved: the scenarios only. Unit examples are added as discovered.
     const finalList = s.final('.tdd/test-list.md')
     const isUnitItem = (line) => /^ {2}- \[/.test(line)
     const isItemDetail = (line) => /^ {8}\S/.test(line)
@@ -135,7 +135,7 @@ describe('Example: place an order in Java, outside-in', () => {
     s.next('RED')
 
     // Cycle A: the use case, its Orders port with a Fake, and Placement. Fake it: always refuse.
-    addItems(scenario(0), ['an order without lines is refused'])
+    addItems(scenario(0), ['no lines → Refused("an order needs at least one line")'])
     s.blocked(FILES.placeAnOrderTest, 'class PlaceAnOrderTest {\n    Orders orders = Mockito.mock(Orders.class);\n    @Test void refuses() {}\n}', /Fake/)
     write('fake', FAKE_1(final('fake')))
     write('builder', BUILDER_1(final('builder')))
@@ -147,7 +147,7 @@ describe('Example: place an order in Java, outside-in', () => {
     s.write(`${J}/Placement.java`, s.final(`${J}/Placement.java`))
     write('placeOrder', PLACE_ORDER_1)
     s.next('REFACTOR')
-    s.tick('an order without lines is refused')
+    s.tick('no lines → Refused("an order needs at least one line")')
     s.next('ACCEPTANCE')
     assert.match(listNow(), new RegExp(`- \\[x\\] ${scenario(0)}`))
 
@@ -156,12 +156,12 @@ describe('Example: place an order in Java, outside-in', () => {
     s.next('RED')
 
     // Cycle B: the refusal becomes a condition; an order with lines is saved.
-    addItems(scenario(1), ['an order with lines is placed and saved', 'shipping is free above 50 euros'])
+    addItems(scenario(1), ['an order with lines → Placed(id), saved', '60 € → shipping 0 €'])
     write('placeAnOrderTest')
     s.next('GREEN')
     write('placeOrder')
     s.next('REFACTOR')
-    s.tick('an order with lines is placed and saved')
+    s.tick('an order with lines → Placed(id), saved')
     assert.match(s.next('RED').out, /acceptance test still red/)
 
     // Cycle C: free shipping, asserted through a business assertion. Fake it: 0.
@@ -171,7 +171,7 @@ describe('Example: place an order in Java, outside-in', () => {
     s.next('GREEN')
     write('order', ORDER_2)
     s.next('REFACTOR')
-    s.tick('shipping is free above 50 euros')
+    s.tick('60 € → shipping 0 €')
     s.next('ACCEPTANCE')
 
     // Scenario 3: 5 euros of shipping below 50 euros.
@@ -179,7 +179,7 @@ describe('Example: place an order in Java, outside-in', () => {
     s.next('RED')
 
     // Cycle D: paid shipping triangulates the fake 0; the constants are named in REFACTOR.
-    addItems(scenario(2), ['shipping costs 5 euros below 50 euros'])
+    addItems(scenario(2), ['30 € → shipping 5 €: free above 50 € only'])
     write('builder')
     write('assertions')
     write('shippingFeesTest')
@@ -187,8 +187,8 @@ describe('Example: place an order in Java, outside-in', () => {
     write('order', ORDER_3)
     s.next('REFACTOR')
     write('order')
-    s.tick('shipping costs 5 euros below 50 euros')
-    addItems(scenario(2), ['orders saved in a file honour the Orders contract'])
+    s.tick('30 € → shipping 5 €: free above 50 € only')
+    addItems(scenario(2), ['FileOrders: save(order) then byId(id) → the same order (Orders contract)'])
     s.next('RED')
 
     // Cycle E: the real adapter, checked by the same contract test as the Fake.
@@ -200,7 +200,7 @@ describe('Example: place an order in Java, outside-in', () => {
     write('orders')
     write('fileOrders')
     s.next('REFACTOR')
-    s.tick('orders saved in a file honour the Orders contract')
+    s.tick('FileOrders: save(order) then byId(id) → the same order (Orders contract)')
     s.next('OFF')
 
     s.assertSameFilesAsExample(['src'])

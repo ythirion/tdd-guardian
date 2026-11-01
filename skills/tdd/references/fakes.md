@@ -77,7 +77,7 @@ ordersContract('PostgresOrders', async () => PostgresOrders.forTests()) // when 
 - Under `mockPolicy: justify`, write the reason on the same or previous line:
 
 ```ts
-// tdd-guard: allow-mock payment SDK has no port yet, wrap it in PaymentGateway next
+// tdd-guardian: allow-mock payment SDK has no port yet, wrap it in PaymentGateway next
 const charge = jest.fn()
 ```
 

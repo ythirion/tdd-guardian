@@ -41,7 +41,7 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] A5 A file under `test/acceptance/**` is an acceptance test, even though it also matches `test/**`
 - [x] A6 A file under `test/fakes/**` or `test/builders/**` is test code (same family as unit tests)
 - [x] A7 `README.md` and docs are free files; `.tdd/test-list.md` is its own kind (writable except in GREEN)
-- [x] A8 `.tdd/state.json` and `.tdd/config.json` are guard files
+- [x] A8 `.tdd/state.json` and `.tdd/config.json` are guardian files
 - [x] A9 A file matching no pattern is production code
 - [x] A10 Absolute paths and Windows separators are classified relative to the project root
 
@@ -59,8 +59,8 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 
 ### Mock detection
 - [x] A19 New lines matching `mockPatterns` are found (only lines added, compared with the old content)
-- [x] A20 A mock line justified by `tdd-guard: allow-mock <reason>` on the same or previous line is accepted, and its reason extracted
-- [x] A21 `tdd-guard: allow-mock` with no reason does not justify anything
+- [x] A20 A mock line justified by `tdd-guardian: allow-mock <reason>` on the same or previous line is accepted, and its reason extracted
+- [x] A21 `tdd-guardian: allow-mock` with no reason does not justify anything
 
 ### Command runner
 - [x] A22 Exit code 0 is green, anything else is red; the output tail is kept for messages
@@ -83,7 +83,7 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] B14 REFACTOR: production, tests and acceptance tests are writable
 - [x] B15 `README.md` is writable in every phase
 - [x] B16 Outside-in, `justify`: a new `jest.fn()` without a reason is blocked, the message points to `references/fakes.md` and suggests a Fake
-- [x] B17 Outside-in, `justify`: with `tdd-guard: allow-mock <reason>` it passes and is appended to `justifiedMocks`
+- [x] B17 Outside-in, `justify`: with `tdd-guardian: allow-mock <reason>` it passes and is appended to `justifiedMocks`
 - [x] B18 `forbid`: a justified mock is still blocked
 - [x] B19 Inside-out, `allow`: `jest.fn()` passes without a reason
 - [x] B20 `Edit`, `MultiEdit` and `NotebookEdit` payloads are rebuilt into the proposed content
@@ -149,9 +149,9 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] H2 "Place an order" outside-in (Java, Maven), opening with a refused order (`Placement.Refused`),
       in-memory repository Fake, shared contract test with a file adapter, `OrderBuilder` with Object
       Mothers, business assertions on the saved order
-- [x] C1b `start` drafts a list that opens with the non-passing case and says what each item drives
-      (added on request, 2026-11-01)
+- [x] C1b `start` drafts a list of short `input → outcome` examples, opening with the non-passing
+      case (added on request, 2026-11-01)
 
 ## I. Docs
-- [x] I1 README: installation, configuration, both modes, Fakes vs mocks, known limits (Bash guard is a heuristic)
+- [x] I1 README: installation, configuration, both modes, Fakes vs mocks, known limits (the Bash hook is a heuristic)
 - [x] I2 Skill references: cycle, green-moves, inside-out, outside-in, fakes, naming-and-organization, test-data-builders, business-assertions, property-based

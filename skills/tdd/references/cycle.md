@@ -22,12 +22,12 @@ or the test does not check what it claims.
 
 ## Baby steps
 
-- One test at a time. The guard counts new tests on every write in RED and ACCEPTANCE.
+- One test at a time. The guardian counts new tests on every write in RED and ACCEPTANCE.
 - The smallest test that forces a change. Start with the degenerate cases (empty, zero, one).
 - When a step feels big, it is: go back to green, write a smaller test.
 - Commit on green (and after each refactoring) so any step can be undone cheaply.
 
-## Why the guard checks what it checks
+## Why the guardian checks what it checks
 
 | Check | Problem it prevents |
 | --- | --- |

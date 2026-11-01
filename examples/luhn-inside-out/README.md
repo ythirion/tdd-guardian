@@ -1,28 +1,26 @@
-# Example: a Luhn number, inside-out (Java)
-
-The Luhn (mod 10) checksum of card, IMEI and SIRET numbers, built one test at a time under the guard.
-`test/examples/luhn-inside-out.test.js` replays the whole session through the real hooks and Maven,
-and checks that it ends with exactly these files.
+# Example: Luhn number, inside-out (Java)
 
 ```sh
 mvn test   # Java 21+, Maven 3.9+
 ```
 
-## What it shows
+The test list, one example per test, in the order they were written (`.tdd/test-list.md`):
 
-- **The list opens with the non-passing case** (`an empty number is not a Luhn number`). It decides
-  the signature first: `LuhnNumber.parse` returns `Optional<LuhnNumber>`, an invalid number is an
-  expected answer, not an exception.
-- **Every item says what it drives** (`→ drives:` in `.tdd/test-list.md`): each test adds one part
-  of the implementation (the type, the checksum, the doubling, the subtraction of 9, the spaces, the
-  digits-only guard, the check digit), so the list grows the thinnest complete implementation.
-- **Fake it, then triangulate**: the first GREEN is `return Optional.empty()`, the check digit is
-  first `return 3`.
-- **A round-trip property** with junit-quickcheck (`RoundTripOfALuhnNumber`): any valid Luhn
-  number, parsed into a `LuhnNumber` then written back with `toString`, is the same String. The
-  generator `ValidLuhnNumbers` encodes "valid" as a random payload followed by its check digit, so
-  the fake `return 3` cannot survive it.
-- **Blocked moves** in the replay: production code in LIST and RED, a test edited in GREEN, and an
-  `@Disabled` added to a test.
+| Example | Rule it forces |
+| --- | --- |
+| `""` → not a Luhn number (`Optional.empty()`) | a refusal is a value, not an exception |
+| `"0"` → a Luhn number | |
+| `"1"` → not a Luhn number | the digit sum must end with 0 |
+| `"18"` → a Luhn number | every second digit from the right is doubled |
+| `"59"` → a Luhn number | a doubled digit above 9 has 9 subtracted |
+| `"4539 3195 0343 6467"` → a Luhn number | spaces are ignored |
+| `"4539 3195 0343 646A"` → not a Luhn number | digits only |
+| `checkDigitOf("7992739871")` → 3 | |
+| [property] any valid Luhn number `n` → `parse(n).toString()` is `n` | round trip, junit-quickcheck |
 
-junit-quickcheck runs on JUnit 4; `junit-vintage-engine` runs it next to the JUnit 5 tests.
+The round trip's generator (`ValidLuhnNumbers`) builds a random payload followed by its check digit,
+so the `return 3` written in "fake it" fails it.
+
+`test/examples/luhn-inside-out.test.js` replays the session through TDD Guardian's hooks and Maven.
+The replay also shows writes that get blocked: production code in LIST and in RED, a test edited in
+GREEN, and an `@Disabled`.

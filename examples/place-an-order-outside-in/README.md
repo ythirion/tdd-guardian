@@ -1,29 +1,30 @@
 # Example: place an order, outside-in (Java)
 
-A use case built with the double loop: one red acceptance test per scenario, unit cycles until it
-turns green. `test/examples/place-an-order-outside-in.test.js` replays the whole session through the
-real hooks and Maven, and checks that it ends with exactly these files.
-
 ```sh
-mvn test                # unit suite: acceptance tests are neither compiled nor run
+mvn test                # unit suite (acceptance tests are not compiled)
 mvn test -Pacceptance   # acceptance suite
 ```
 
-## What it shows
+The test list (`.tdd/test-list.md`): one scenario per acceptance test, its unit examples below.
 
-- **The first scenario is the non-passing case**: an order without lines is refused and nothing is
-  saved. It decides how the use case reports a refusal before any happy path exists:
-  `PlaceOrder.handle` returns a `Placement` (`Placed` or `Refused`), an error as a value, not an
-  exception.
-- **Every scenario and item says what it drives** (`→ drives:` in `.tdd/test-list.md`). Unit items
-  are added under their scenario as collaborators are discovered.
-- **A Fake, not a mock**: `InMemoryOrders` implements the `Orders` port and exposes `saved()`. A
-  `Mockito.mock(Orders.class)` attempt is blocked in RED with a message suggesting a Fake.
-- **A shared contract test**: `OrdersContract` runs against the Fake and the real `FileOrders`
-  adapter, so the Fake cannot lie.
-- **Test data builders and Object Mothers**: `anOrder()`, `aBigOrder()`, `aSmallOrder()`.
-- **Business assertions**: `theOrder(saved).isShippedFreeOfCharge()`, `.costsShipping(5)`, counted
-  as assertions through `assertionMethodPatterns`.
+```
+Scenario: an order without lines → Refused, nothing saved
+  no lines → Refused("an order needs at least one line")
+Scenario: an order of 60 € → saved, shipping 0 €
+  an order with lines → Placed(id), saved
+  60 € → shipping 0 €
+Scenario: an order of 30 € → saved, shipping 5 €
+  30 € → shipping 5 €: free above 50 € only
+  FileOrders: save(order) then byId(id) → the same order (Orders contract)
+```
 
-The pom excludes `**/acceptance/**` from test compilation by default, so a red acceptance test that
-does not compile yet never blocks the inner loop; the `acceptance` profile compiles and runs it.
+| Practice | Where |
+| --- | --- |
+| Refusal as a value, not an exception | `PlaceOrder.handle` → `Placement.Placed` / `Placement.Refused` |
+| A Fake, not a mock (a `Mockito.mock` gets blocked) | `fakes/InMemoryOrders`, asserted through `saved()` |
+| One contract test, Fake and real adapter | `contracts/OrdersContract` → `InMemoryOrders`, `FileOrders` |
+| Builder, Object Mothers | `anOrder()`, `aBigOrder()`, `aSmallOrder()` |
+| Business assertions | `theOrder(saved).isShippedFreeOfCharge()`, `.costsShipping(5)` |
+
+`test/examples/place-an-order-outside-in.test.js` replays the session through TDD Guardian's hooks
+and Maven.

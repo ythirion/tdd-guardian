@@ -86,7 +86,7 @@ describe('Example: Luhn number in Java, inside-out', () => {
     s.human('/tdd:approve')
     assert.equal(s.phase(), 'RED')
 
-    // Parsing, from the non-passing case to the digits-only guard: one test, one code version per cycle.
+    // Parsing, from the non-passing case to "digits only": one test, one code version per cycle.
     for (let cycle = 0; cycle < LUHN_VERSIONS.length; cycle++) {
       s.write(PARSING, parsingUpTo(cycle + 1))
       s.blocked(LUHN, LUHN_VERSIONS[cycle], /RED/)

@@ -1,9 +1,9 @@
 ---
 name: tdd
-description: Test-driven development enforced by the TDD guard (Red-Green-Refactor, one test at a time, inside-out or outside-in with Fakes). Use when the user mentions TDD, test first, test-driven, red green refactor, inside-out, outside-in, double loop, "build a feature with tests", or whenever .tdd/state.json exists with a phase other than OFF.
+description: Test-driven development enforced by the TDD Guardian (Red-Green-Refactor, one test at a time, inside-out or outside-in with Fakes). Use when the user mentions TDD, test first, test-driven, red green refactor, inside-out, outside-in, double loop, "build a feature with tests", or whenever .tdd/state.json exists with a phase other than OFF.
 ---
 
-# TDD with the guard
+# TDD with TDD Guardian
 
 The `tdd` plugin enforces the cycle with hooks: a write the current phase forbids is blocked, and
 the block message gives the rule, the reason and what to do. This skill is the process those hooks
@@ -36,15 +36,23 @@ Details of the cycle and baby steps: `references/cycle.md`.
 
 ## 1. LIST
 
-- **Inside-out**: unit cases in business language, from the core rules outwards.
-- **Outside-in**: acceptance scenarios, one `- [ ] Scenario: ...` line each, with Given/When/Then.
-  Unit items go indented under their scenario as collaborators are discovered.
-- **Order the list so that each test completes one part of the implementation**, growing the
-  thinnest complete implementation. Under each item, a `→ drives: ...` line says which part.
-- **Start with the non-passing case** (an input that is refused). It decides the signature first:
-  a refusal the business expects is an **error as a value** (`Optional`, `Either`, a `Result` or a
-  sealed type), not an exception; exceptions are for the truly exceptional.
-- Tag an item `[property]` when it states a rule over a range of inputs rather than one example
+A human must grasp the list in seconds. **One item = one precise example: `input → outcome`**,
+then the rule it forces when it is not obvious. No sentences.
+
+```markdown
+- [ ] "" → not a Luhn number (Optional.empty())
+- [ ] "0" → a Luhn number
+- [ ] "1" → not a Luhn number: the digit sum must end with 0
+- [ ] "18" → a Luhn number: every second digit from the right is doubled
+```
+
+- **Start with the non-passing case.** It decides how a refusal is returned, as a value
+  (`Optional.empty()`, `Refused`, `Either`), not an exception: exceptions are for the exceptional.
+- **Each example forces one more piece of code**, so the list grows the thinnest complete
+  implementation. An example that would already pass forces nothing: drop it or move it.
+- **Inside-out**: from the core rules outwards. **Outside-in**: one `- [ ] Scenario: ... → ...` line
+  per acceptance test; its unit examples go indented below, added as collaborators are discovered.
+- `[property]` tags a rule over a range of inputs: `[property] any valid n → parse(n).toString() is n`
   (see `references/property-based.md`).
 - No code, no test. Stop and ask the human to review the list and run `/tdd:approve`.
 
@@ -106,7 +114,7 @@ The hooks protect either way; the orchestrator (you) runs `tdd.js next` between 
 
 - Inside-out: real objects, built from the core outwards; mocks rarely needed (`mockPolicy: allow`).
 - Outside-in: **Fakes over mocks** (`mockPolicy: justify`). Assert on the state a Fake exposes, not on
-  calls. A mocking-library call needs `tdd-guard: allow-mock <reason>` on the same or previous line,
+  calls. A mocking-library call needs `tdd-guardian: allow-mock <reason>` on the same or previous line,
   only when no port exists (third-party SDK, legacy code). Justified mocks are listed by `/tdd:status`.
   Shared contract tests run against both the Fake and the real adapter (`references/fakes.md`).
 
