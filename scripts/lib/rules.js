@@ -6,9 +6,28 @@ const PLUGIN_FILES = {
   action: 'move between phases with `node <plugin>/scripts/tdd.js next`; it checks the exit conditions itself.',
 }
 
+const NOTHING_BEFORE_APPROVAL = {
+  rule: 'in LIST, no code and no test: only .tdd/test-list.md, until a human runs /tdd:approve.',
+  why: 'the test list is the plan a human checks before the first test; code written now skips that review.',
+  action: 'write the cases in business language (Given/When/Then for outside-in), then ask the human to review and run /tdd:approve.',
+}
+
 // What each phase forbids, by file kind, with the teaching behind it.
 // A missing entry means the write is allowed.
 const FORBIDDEN_WRITES = {
+  LIST: { test: NOTHING_BEFORE_APPROVAL, acceptance: NOTHING_BEFORE_APPROVAL, production: NOTHING_BEFORE_APPROVAL },
+  ACCEPTANCE: {
+    test: {
+      rule: 'in ACCEPTANCE, only the acceptance test is written: no unit test yet.',
+      why: 'outside-in starts from a failing test at the system boundary; it decides which unit tests are needed, not the other way round.',
+      action: 'write one acceptance test for the next scenario (use case or API boundary, Fakes for infrastructure), see it fail, then `tdd.js next`.',
+    },
+    production: {
+      rule: 'in ACCEPTANCE, no production code.',
+      why: 'the acceptance test must fail first; the code arrives through the inner unit cycles that follow.',
+      action: 'finish the acceptance test, run it, check it fails (a compile error is fine at this level), then `tdd.js next`.',
+    },
+  },
   RED: {
     production: {
       rule: 'in RED, no production code: only one new failing test (plus the Fakes and test support it needs).',
@@ -26,6 +45,11 @@ const FORBIDDEN_WRITES = {
       rule: 'in GREEN, tests are read-only (unit tests, Fakes, builders, business assertions).',
       why: 'changing a test to get to green proves nothing: the test must stay the fixed target the code is written against.',
       action: 'write the minimal production code that makes the failing test pass (fake it, then triangulate). If the test itself is wrong, say so and ask the human.',
+    },
+    acceptance: {
+      rule: 'in GREEN, the acceptance tests are read-only.',
+      why: 'GREEN makes one unit test pass with minimal code; the outer test is the goal, not something to adjust.',
+      action: 'write the minimal production code for the failing unit test, then `tdd.js next`.',
     },
     'test-list': {
       rule: 'in GREEN, the test list is frozen.',

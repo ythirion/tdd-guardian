@@ -68,6 +68,16 @@ describe('guard-write: writes allowed per phase', () => {
     assert.equal(guardWrite(aWrite(root, 'src/foo.test.ts', "it('one', () => {})\nit('two', () => {})")).code, ALLOWED)
     assert.equal(guardWrite(aWrite(root, 'test/builders/order-builder.ts', 'export const anOrder = 1')).code, ALLOWED)
   })
+  it('blocks code and tests in LIST, and lets the test list through', () => {
+    const root = aTddProject({ phase: 'LIST' })
+
+    for (const file of ['src/foo.ts', 'src/foo.test.ts', 'test/acceptance/shipping.test.ts']) {
+      const result = guardWrite(aWrite(root, file, 'x'))
+      assert.equal(result.code, BLOCKED, file)
+      assert.match(result.stderr, /LIST.*approve/)
+    }
+    assert.equal(guardWrite(aWrite(root, '.tdd/test-list.md', '- [ ] free above 50')).code, ALLOWED)
+  })
 })
 
 describe('guard-write: one test at a time', () => {
@@ -106,5 +116,43 @@ describe('guard-write: one test at a time', () => {
     assert.equal(result.code, BLOCKED)
     assert.match(result.stderr, /it\.skip\(/)
     assert.match(result.stderr, /never disabled/)
+  })
+})
+
+describe('guard-write: outside-in ACCEPTANCE phase', () => {
+  const ACCEPTANCE = { phase: 'ACCEPTANCE', mode: 'outside-in', state: { acceptanceTestCountAtAcceptance: 0 } }
+
+  it('blocks unit tests and production code, lets one acceptance test through, blocks two', () => {
+    const root = aTddProject(ACCEPTANCE)
+
+    const unit = guardWrite(aWrite(root, 'src/shipping.test.ts', "it('a', () => {})"))
+    assert.equal(unit.code, BLOCKED)
+    assert.match(unit.stderr, /ACCEPTANCE/)
+    assert.equal(guardWrite(aWrite(root, 'src/shipping.ts', 'x')).code, BLOCKED)
+    assert.equal(guardWrite(aWrite(root, 'test/acceptance/shipping.test.ts', "it('free above 50', () => {})")).code, ALLOWED)
+    assert.equal(guardWrite(aWrite(root, 'test/acceptance/shipping.test.ts',
+      "it('free above 50', () => {})\nit('5 euros below', () => {})")).code, BLOCKED)
+  })
+})
+
+describe('guard-write: GREEN, REFACTOR and free files', () => {
+  it('blocks the acceptance tests in GREEN', () => {
+    const root = aTddProject({ phase: 'GREEN', mode: 'outside-in' })
+
+    assert.equal(guardWrite(aWrite(root, 'test/acceptance/shipping.test.ts', 'x')).code, BLOCKED)
+  })
+
+  it('lets production, unit tests and acceptance tests through in REFACTOR', () => {
+    const root = aTddProject({ phase: 'REFACTOR', mode: 'outside-in' })
+
+    for (const file of ['src/foo.ts', 'src/foo.test.ts', 'test/fakes/orders.ts', 'test/acceptance/shipping.test.ts']) {
+      assert.equal(guardWrite(aWrite(root, file, "it('a', () => {})\nit('b', () => {})")).code, ALLOWED, file)
+    }
+  })
+
+  it('lets README.md through in every phase', () => {
+    for (const phase of ['OFF', 'LIST', 'ACCEPTANCE', 'RED', 'GREEN', 'REFACTOR']) {
+      assert.equal(guardWrite(aWrite(aTddProject({ phase }), 'README.md', '# Shop')).code, ALLOWED, phase)
+    }
   })
 })
