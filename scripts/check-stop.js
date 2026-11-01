@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 // Stop: the agent does not hand back in the middle of a cycle.
-const { readInput, projectRoot, isTddProject, block, EXIT_ALLOW } = require('./lib/hook-io')
+const { readInput, projectRoot, isTddProject, blockStop, EXIT_ALLOW } = require('./lib/hook-io')
 const { loadConfig } = require('./lib/config')
 const { loadState } = require('./lib/state')
 const { runSuite } = require('./lib/runner')
@@ -22,7 +22,7 @@ const blockOnce = (lesson) => {
     process.stderr.write(`tdd-guardian: warning, stopping anyway (already blocked once):\n${lesson}\n`)
     process.exit(EXIT_ALLOW)
   }
-  block(lesson, config)
+  blockStop(lesson, config)
 }
 
 if (phase === 'GREEN' || phase === 'REFACTOR') {
