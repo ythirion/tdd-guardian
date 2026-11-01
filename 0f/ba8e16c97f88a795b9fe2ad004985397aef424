@@ -1,0 +1,49 @@
+examples/place-an-order-outside-in/test/contracts/orders-contract.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-22
+examples/place-an-order-outside-in/test/unit/orders.contract.test.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-11
+examples/place-an-order-outside-in/test/assertions/order-assertions.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-16
+examples/place-an-order-outside-in/test/fakes/in-memory-orders.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-21
+examples/place-an-order-outside-in/src/json-file-orders.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-27
+examples/place-an-order-outside-in/.tdd/config.json
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-17
+examples/place-an-order-outside-in/test/acceptance/place-an-order.test.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-24
+examples/place-an-order-outside-in/test/unit/order.test.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-14
+examples/place-an-order-outside-in/src/place-an-order.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-14
+examples/place-an-order-outside-in/test/builders/order-builder.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-28
+examples/place-an-order-outside-in/package.json
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-9
+examples/place-an-order-outside-in/src/order.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-22
+examples/place-an-order-outside-in/test/unit/place-an-order.test.js
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-17
+test/examples/place-an-order-outside-in.test.js
+  s_0d25068a86d8ca::t_923cb976cb7b1b 1-154
+examples/place-an-order-outside-in/.tdd/test-list.md
+  s_0d25068a86d8ca::t_20c4afa4c199d2 1-12
+docs/test-list.md
+  s_0d25068a86d8ca::t_6c0dca6689d458 147-148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0fba8e16c97f88a795b9fe2ad004985397aef424",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
