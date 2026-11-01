@@ -1,9 +1,17 @@
 # TDD Guardian
 
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?logo=claude&logoColor=white)](https://docs.claude.com/en/docs/claude-code/plugins)
+[![Built with Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-D97757?logo=claude&logoColor=white)](https://claude.com/claude-code)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Node.js ≥ 18](https://img.shields.io/badge/node-%E2%89%A5%2018-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+
 A Claude Code plugin that **enforces** the Red-Green-Refactor cycle on the agent instead of merely
 asking for it. A skill describes the process; hooks enforce it by blocking the writes the current
 phase forbids. Every block explains the rule that was broken, why it exists, and what to do instead:
 the plugin is a teaching aid as much as a guardian.
+
+New to TDD? Read **[What is TDD, and what TDD Guardian enforces](docs/tdd.md)**: Red-Green-Refactor,
+the three rules, Kent Beck's Canon TDD, and how each mistake it lists maps to a check of the plugin.
 
 It targets what coding agents do when left alone with TDD:
 
