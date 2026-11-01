@@ -4,8 +4,13 @@ const { loadState, saveState, canChangeMode, MODES } = require('./state')
 const fs = require('node:fs')
 const path = require('node:path')
 const { loadConfig, configPath, detectConfig, DEFAULT_CONFIG } = require('./config')
-const { writeSkeleton } = require('./test-list')
-const { testCount } = require('./measures')
+const { writeSkeleton, readItems, unitItems, firstOpen } = require('./test-list')
+const { hashTestCode } = require('./hash')
+const { testCount, testCountsByFile, filesWithNewTests } = require('./measures')
+const { runSuite } = require('./runner')
+
+const plural = (n, word) => `${n} new ${word}${n === 1 ? '' : 's'}`
+const lastRun = (fields) => ({ ...fields, at: new Date().toISOString() })
 
 const refuse = (message) => ({ ok: false, message })
 const done = (root, state, message) => { saveState(root, state); return { ok: true, message } }
@@ -43,7 +48,9 @@ function setMode(root, mode) {
 }
 
 function enterAcceptance(root, config, state) {
-  return { ...state, phase: 'ACCEPTANCE', acceptanceTestCountAtAcceptance: testCount(root, config, 'acceptance') }
+  return { ...state, phase: 'ACCEPTANCE',
+    acceptanceTestCountAtAcceptance: testCount(root, config, 'acceptance'),
+    acceptanceTestCountsAtAcceptance: testCountsByFile(root, config, 'acceptance') }
 }
 
 function enterRed(root, config, state) {
@@ -68,7 +75,46 @@ function off(root) {
   return done(root, { ...state, phase: 'OFF' }, 'TDD guard is OFF: every file is writable again.')
 }
 
+function leaveAcceptance(root, state, config) {
+  const newTests = testCount(root, config, 'acceptance') - (state.acceptanceTestCountAtAcceptance || 0)
+  if (newTests !== 1) {
+    return refuse(`ACCEPTANCE needs exactly one new acceptance test; found ${plural(newTests, 'acceptance test')}. `
+      + 'One scenario at a time keeps the outer loop focused: write the test for the next scenario only.')
+  }
+  const run = runSuite(config.acceptanceCommand, root)
+  if (run.green) {
+    return refuse('The new acceptance test passes already: it must fail first, or it proves nothing about the code still to write. '
+      + 'Check it exercises the new behaviour through the use case or API boundary.')
+  }
+  const [acceptanceTest] = filesWithNewTests(root, config, 'acceptance', state.acceptanceTestCountsAtAcceptance)
+  return done(root, { ...enterRed(root, config, state), acceptanceTest, lastRun: lastRun({ acceptanceGreen: false }) },
+    `Acceptance test red, as expected (${acceptanceTest}). RED: write the first unit test the acceptance test needs, `
+    + 'starting from the outermost unit; name any new collaborator as a port and give it a Fake.')
+}
+
+function leaveRed(root, state, config) {
+  const newTests = testCount(root, config, 'test') - (state.unitTestCountAtRed || 0)
+  if (newTests !== 1) {
+    return refuse(`RED needs exactly one new unit test; found ${plural(newTests, 'unit test')}. `
+      + 'One test at a time: each failure drives one small step of code.')
+  }
+  const run = runSuite(config.testCommand, root)
+  if (run.green) {
+    return refuse('The unit suite is green: the new test has not been seen failing. A test that never failed may be tautological. '
+      + 'Check it asserts the new behaviour and run it again; it must fail for the expected reason before any code is written.')
+  }
+  // The suite was green on entering RED and production code is read-only in RED,
+  // so the one new test is the only failing one.
+  const currentTest = firstOpen(unitItems(readItems(root))) || state.currentTest || '(unnamed)'
+  return done(root, { ...state, phase: 'GREEN', currentTest, testFilesHashAtGreen: hashTestCode(root, config),
+    lastRun: lastRun({ ...state.lastRun, unitGreen: false }) },
+  `Test seen failing. GREEN (${currentTest}): write the minimal production code (fake it, triangulate later). `
+    + 'Tests, Fakes and builders are read-only. Then `tdd.js next`.\n--- failure ---\n' + run.output.slice(-800))
+}
+
 const NEXT = {
+  RED: leaveRed,
+  ACCEPTANCE: leaveAcceptance,
   OFF: () => refuse('No feature in progress: the human starts one with /tdd:start <feature>.'),
   LIST: () => refuse('The test list must be approved by a human: ask them to review .tdd/test-list.md and run /tdd:approve.'),
 }

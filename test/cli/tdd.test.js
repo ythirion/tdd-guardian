@@ -3,7 +3,7 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const { tdd, aTddProject, aProject, readJson } = require('../helpers')
+const { tdd, aTddProject, aProject, readJson, writeFile, GREEN_SUITE, RED_SUITE } = require('../helpers')
 
 const phaseOf = (root) => readJson(root, '.tdd/state.json').phase
 const OK = 0
@@ -88,5 +88,64 @@ describe('tdd.js approve', () => {
     assert.equal(offByAgent.code, REFUSED)
     assert.equal(phaseOf(list), 'LIST')
     assert.equal(phaseOf(green), 'GREEN')
+  })
+})
+
+describe('tdd.js next: ACCEPTANCE to RED', () => {
+  const inAcceptance = (files = {}, config = {}) => aTddProject({ phase: 'ACCEPTANCE', mode: 'outside-in',
+    state: { acceptanceTestCountAtAcceptance: 0 }, config, files })
+  const scenario = "it('free shipping above 50 euros', () => {})"
+
+  it('needs exactly one new acceptance test, failing', () => {
+    const none = tdd(inAcceptance(), ['next'])
+    assert.equal(none.code, REFUSED)
+    assert.match(none.out, /0 new acceptance tests/)
+
+    const two = tdd(inAcceptance({ 'test/acceptance/shipping.test.ts': `${scenario}\n${scenario}` }), ['next'])
+    assert.equal(two.code, REFUSED)
+    assert.match(two.out, /2 new acceptance tests/)
+
+    const passing = tdd(inAcceptance({ 'test/acceptance/shipping.test.ts': scenario }, { acceptanceCommand: GREEN_SUITE }), ['next'])
+    assert.equal(passing.code, REFUSED)
+    assert.match(passing.out, /acceptance test passes/)
+
+    const root = inAcceptance({ 'test/acceptance/shipping.test.ts': scenario })
+    const accepted = tdd(root, ['next'])
+    assert.equal(accepted.code, OK, accepted.out)
+    assert.equal(phaseOf(root), 'RED')
+    assert.equal(readJson(root, '.tdd/state.json').acceptanceTest, 'test/acceptance/shipping.test.ts')
+  })
+})
+
+describe('tdd.js next: RED to GREEN', () => {
+  const oneNewTest = { 'src/fizzbuzz.test.ts': "it('says 1 for 1', () => expect(fizzbuzz(1)).toBe('1'))" }
+  const inRed = ({ files = oneNewTest, config = {} } = {}) => aTddProject({ phase: 'RED', mode: 'inside-out',
+    state: { unitTestCountAtRed: 0 }, config: { testCommand: RED_SUITE, ...config }, files: {
+      '.tdd/test-list.md': '- [ ] says 1 for 1\n- [ ] says Fizz for 3\n', ...files } })
+
+  it('refuses GREEN while the unit suite is green: the new test has not been seen failing', () => {
+    const root = inRed({ config: { testCommand: GREEN_SUITE } })
+
+    const result = tdd(root, ['next'])
+
+    assert.equal(result.code, REFUSED)
+    assert.match(result.out, /unit suite is green/)
+    assert.equal(phaseOf(root), 'RED')
+  })
+  it('needs exactly one new failing test, then records the test-code hash and the current item', () => {
+    const two = inRed({ files: { 'src/fizzbuzz.test.ts': "it('a', () => {})\nit('b', () => {})" } })
+    const refused = tdd(two, ['next'])
+    assert.equal(refused.code, REFUSED)
+    assert.match(refused.out, /2 new unit tests/)
+
+    const root = inRed()
+    const accepted = tdd(root, ['next'])
+
+    assert.equal(accepted.code, OK, accepted.out)
+    const state = readJson(root, '.tdd/state.json')
+    assert.equal(state.phase, 'GREEN')
+    assert.equal(state.currentTest, 'says 1 for 1')
+    assert.match(state.testFilesHashAtGreen, /^sha256:/)
+    assert.equal(state.lastRun.unitGreen, false)
   })
 })

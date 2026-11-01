@@ -31,4 +31,21 @@ function writeSkeleton(root, feature, mode) {
   return true
 }
 
-module.exports = { listPath, writeSkeleton }
+const ITEM = /^(\s*)[-*] \[([ xX])\] (.+?)\s*$/
+
+// Checkbox lines of the list. "Scenario:" items are acceptance scenarios, the others unit items.
+function readItems(root) {
+  if (!fs.existsSync(listPath(root))) return []
+  return fs.readFileSync(listPath(root), 'utf8').split(/\r?\n/).flatMap((line) => {
+    const match = ITEM.exec(line)
+    if (!match) return []
+    const text = match[3]
+    return [{ text, done: match[2] !== ' ', scenario: /^scenario\s*:/i.test(text) }]
+  })
+}
+
+const unitItems = (items) => items.filter((item) => !item.scenario)
+const scenarios = (items) => items.filter((item) => item.scenario)
+const firstOpen = (items) => (items.find((item) => !item.done) || {}).text
+
+module.exports = { listPath, writeSkeleton, readItems, unitItems, scenarios, firstOpen }
