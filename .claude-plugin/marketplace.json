@@ -1,0 +1,14 @@
+{
+  "name": "tdd-guardians",
+  "description": "TDD Guardian: a Claude Code plugin that enforces Red-Green-Refactor on the agent",
+  "owner": { "name": "Yoan Thirion", "url": "https://github.com/ythirion" },
+  "plugins": [
+    {
+      "name": "tdd",
+      "source": "./",
+      "description": "Enforces Red-Green-Refactor with hooks, inside-out or outside-in, and explains the rule behind every block",
+      "category": "development",
+      "tags": ["tdd", "testing", "teaching"]
+    }
+  ]
+}

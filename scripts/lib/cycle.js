@@ -1,8 +1,8 @@
 'use strict'
 // Phase transitions. Every function returns { ok, message } and saves the state on success.
-const { loadState, saveState, canChangeMode, MODES } = require('./state')
 const fs = require('node:fs')
 const path = require('node:path')
+const { loadState, saveState, canChangeMode, MODES } = require('./state')
 const { loadConfig, configPath, detectConfig, DEFAULT_CONFIG } = require('./config')
 const { writeSkeleton, readItems, unitItems, scenarios, firstOpen, tick } = require('./test-list')
 const { hashTestCode } = require('./hash')

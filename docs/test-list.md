@@ -149,5 +149,5 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
       with Object Mothers, business assertions on the saved order
 
 ## I. Docs
-- [ ] I1 README: installation, configuration, both modes, Fakes vs mocks, known limits (Bash guard is a heuristic)
-- [ ] I2 Skill references: cycle, green-moves, inside-out, outside-in, fakes, naming-and-organization, test-data-builders, business-assertions, property-based
+- [x] I1 README: installation, configuration, both modes, Fakes vs mocks, known limits (Bash guard is a heuristic)
+- [x] I2 Skill references: cycle, green-moves, inside-out, outside-in, fakes, naming-and-organization, test-data-builders, business-assertions, property-based
