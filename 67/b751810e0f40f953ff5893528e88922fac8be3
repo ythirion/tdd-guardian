@@ -1,0 +1,21 @@
+test/hooks/guard-read.test.js
+  s_0d25068a86d8ca::t_6650ed05f85165 1-25
+scripts/guard-read.js
+  s_0d25068a86d8ca::t_6650ed05f85165 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "67b751810e0f40f953ff5893528e88922fac8be3",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
