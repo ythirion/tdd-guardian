@@ -123,12 +123,12 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] D5 OFF, LIST, or green suite: allowed
 
 ## E. `guard-bash.js` (PreToolUse `Bash`)
-- [ ] E1 GREEN: `sed -i` on a test file is blocked
-- [ ] E2 GREEN: `>`, `>>`, `tee`, `cp`, `mv`, `rm`, `git checkout` / `git restore` on a test file are blocked
-- [ ] E3 GREEN: running the test command, or `cat` on a test file, is allowed
-- [ ] E4 Any phase: an agent call to `tdd.js off` or `tdd.js approve` is blocked
-- [ ] E5 Any phase: a write into `.tdd/` is blocked; `node tdd.js next` is allowed
-- [ ] E6 `strict: false`: warns without blocking
+- [x] E1 GREEN: `sed -i` on a test file is blocked
+- [x] E2 GREEN: `>`, `>>`, `tee`, `cp`, `mv`, `rm`, `git checkout` / `git restore` on a test file are blocked
+- [x] E3 GREEN: running the test command, or `cat` on a test file, is allowed
+- [x] E4 Any phase: an agent call to `tdd.js off` or `tdd.js approve` is blocked
+- [x] E5 Any phase: a write into `.tdd/` is blocked; `node tdd.js next` is allowed
+- [x] E6 `strict: false`: warns without blocking
 
 ## F. `session-start.js` and `human-gate.js`
 - [ ] F1 SessionStart, active phase: context lists mode, phase, acceptance test, current test, remaining items, rules of the phase
