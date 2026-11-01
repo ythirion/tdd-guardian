@@ -58,4 +58,12 @@ const aWrite = (root, file, content) => toolCall(root, 'Write', { file_path: pat
 const anEdit = (root, file, old_string, new_string) =>
   toolCall(root, 'Edit', { file_path: path.join(root, file), old_string, new_string })
 
-module.exports = { aProject, writeFile, readJson, runHook, aTddProject, toolCall, aWrite, anEdit, GREEN_SUITE, RED_SUITE }
+// The phase CLI as a human runs it from a terminal: no CLAUDECODE in the environment.
+function tdd(root, args, env = {}) {
+  const cleanEnv = { ...process.env, CLAUDE_PROJECT_DIR: '', ...env }
+  if (!('CLAUDECODE' in env)) delete cleanEnv.CLAUDECODE
+  const result = spawnSync(process.execPath, [path.join(SCRIPTS, 'tdd.js'), ...args], { cwd: root, encoding: 'utf8', env: cleanEnv })
+  return { code: result.status, out: `${result.stdout}${result.stderr}` }
+}
+
+module.exports = { tdd, aProject, writeFile, readJson, runHook, aTddProject, toolCall, aWrite, anEdit, GREEN_SUITE, RED_SUITE }

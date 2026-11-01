@@ -14,10 +14,11 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 2. **Human-only `approve` / `off`.** The docs say `!` command execution "runs through the Bash
    tool" and do not say whether PreToolUse hooks fire on it. If they do, `guard-bash.js` would
    also block the human. Safer mechanism: a **UserPromptSubmit** hook (`human-gate.js`). It only
-   fires on prompts the human types, and receives `/tdd:approve` as typed. It performs the
-   transition itself and writes a one-time token; `tdd.js approve|off` refuses without it.
-   `guard-bash.js` then blocks every agent call to `tdd.js approve|off`, with no ambiguity.
-   `approve.md` and `off.md` also set `disable-model-invocation: true`.
+   fires on prompts the human types, receives `/tdd:approve` as typed, and performs the
+   transition in-process. Defence in depth: `tdd.js approve|off` refuse to run when `CLAUDECODE`
+   is set (Claude Code sets it in the Bash tool's shell), and `guard-bash.js` blocks any agent call
+   to them. A human can still run them from their own terminal. `approve.md` and `off.md` set
+   `disable-model-invocation: true`.
 3. **Tool inputs.** `Write` → `file_path`, `content`; `Edit` → `file_path`, `old_string`,
    `new_string`, `replace_all`; `MultiEdit` → `file_path`, `edits[]`; `NotebookEdit` →
    `notebook_path`. All four are handled; the proposed content is rebuilt from the file on disk.
@@ -95,9 +96,9 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [ ] C2 `start` without `--mode` uses `defaultMode`; creates `.tdd/config.json` from detection when missing
 - [ ] C3 `start` / `mode` refuse to change the mode outside OFF and LIST
 - [ ] C4 `next` in LIST refuses: approval is human-only
-- [ ] C5 Inside-out: `approve` (with a human token) goes from LIST to RED and records the test count
+- [ ] C5 Inside-out: `approve` goes from LIST to RED and records the test count
 - [ ] C6 Outside-in: `approve` goes from LIST to ACCEPTANCE
-- [ ] C7 `approve` / `off` without a valid human token are refused, and the token is single-use
+- [ ] C7 `approve` / `off` are refused when run from an agent shell (`CLAUDECODE` set)
 - [ ] C8 ACCEPTANCE → RED: refused with zero or two new acceptance tests, or a green acceptance suite; accepted with one new failing acceptance test
 - [ ] C9 RED → GREEN: refused when the unit suite is green
 - [ ] C10 RED → GREEN: refused with two new tests; accepted with one new failing test; records the test-code hash
