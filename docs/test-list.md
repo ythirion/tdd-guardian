@@ -113,6 +113,8 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] C19 Every refusal explains which condition failed and what to do
 - [x] C20 `status` prints mode, phase, current test, acceptance test, list progress, last run, justified mocks and the review checklist
 - [x] C21 `commitOnRefactor` commits with a Conventional Commit message when the project is a git repo (skipped otherwise)
+- [x] C23 `detect` reads language, test stack and additional stack from `pom.xml`, `build.gradle`, `package.json`, `pyproject.toml`, `*.csproj` (added on request, 2026-11-01)
+- [x] C24 `start` deduces the stack from the existing code; with `--language/--test-stack/--stack` (asked by `/tdd:start` only in an empty repository) it picks the preset and records `config.stack`
 - [x] C22 `mutate` runs `mutationCommand` on `touchedFiles`, prints the install hint when the tool is missing, never fails
 
 ## D. `check-stop.js` (Stop)

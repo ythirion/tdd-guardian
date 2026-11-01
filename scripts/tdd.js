@@ -4,6 +4,7 @@
 const cycle = require('./lib/cycle')
 const { statusReport } = require('./lib/status')
 const { mutate } = require('./lib/mutate')
+const { detectStack } = require('./lib/stack')
 
 const root = process.env.CLAUDE_PROJECT_DIR || process.cwd()
 const [command, ...rest] = process.argv.slice(2)
@@ -25,7 +26,9 @@ function humanOnly(action) {
 }
 
 const commands = {
-  start: () => cycle.start(root, { feature: positional(), mode: option('mode') }),
+  start: () => cycle.start(root, { feature: positional(), mode: option('mode'),
+    stack: { language: option('language'), testing: option('test-stack'), additional: option('stack') } }),
+  detect: () => ({ ok: true, message: JSON.stringify(detectStack(root)) }),
   mode: () => cycle.setMode(root, positional()),
   next: () => cycle.next(root),
   status: () => ({ ok: true, message: statusReport(root) }),

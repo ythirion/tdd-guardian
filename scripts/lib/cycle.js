@@ -3,7 +3,8 @@
 const fs = require('node:fs')
 const path = require('node:path')
 const { loadState, saveState, canChangeMode, MODES } = require('./state')
-const { loadConfig, configPath, detectConfig, DEFAULT_CONFIG } = require('./config')
+const { loadConfig, configPath, detectConfig, DEFAULT_CONFIG, PRESETS } = require('./config')
+const { presetNameFor, testStackOverrides, detectStack } = require('./stack')
 const { writeSkeleton, readItems, unitItems, scenarios, firstOpen, tick } = require('./test-list')
 const { hashTestCode } = require('./hash')
 const { commitAll, commitMessage } = require('./git')
@@ -17,26 +18,48 @@ const refuse = (message) => ({ ok: false, message })
 const done = (root, state, message) => { saveState(root, state); return { ok: true, message } }
 
 // Writes .tdd/config.json from the detected build file. Returns a note for the human to review.
-function ensureConfig(root) {
-  if (fs.existsSync(configPath(root))) return ''
-  const detected = detectConfig(root)
-  fs.mkdirSync(path.dirname(configPath(root)), { recursive: true })
-  fs.writeFileSync(configPath(root), JSON.stringify(detected ? detected.config : DEFAULT_CONFIG, null, 2) + '\n')
-  return `Created .tdd/config.json (${detected ? detected.ecosystem : 'defaults, no build file found'}): `
+// Creates .tdd/config.json from the chosen stack, else from the build file; on an existing config,
+// only the stack is updated.
+function ensureConfig(root, stack) {
+  const withStack = (config) => (stack ? { ...config, stack } : config)
+  const write = (config) => {
+    fs.mkdirSync(path.dirname(configPath(root)), { recursive: true })
+    fs.writeFileSync(configPath(root), JSON.stringify(withStack(config), null, 2) + '\n')
+  }
+  if (fs.existsSync(configPath(root))) {
+    if (stack) write(JSON.parse(fs.readFileSync(configPath(root), 'utf8')))
+    return ''
+  }
+  const chosen = stack && presetNameFor(stack, root)
+  const detected = chosen ? null : detectConfig(root)
+  const source = chosen || (detected ? detected.ecosystem : null)
+  write(chosen ? { ...DEFAULT_CONFIG, ...PRESETS[chosen], ...testStackOverrides(stack) }
+    : detected ? detected.config : DEFAULT_CONFIG)
+  return `Created .tdd/config.json (${source || 'defaults, no build file found'}): `
     + 'review testCommand, acceptanceCommand and the file patterns with the human.\n'
+}
+
+const onlyGiven = (stack) => Object.fromEntries(Object.entries(stack || {}).filter(([, value]) => value))
+
+// The human's answers win; without them, the stack the existing code declares. None: nothing recorded.
+function chosenOrDetectedStack(root, stack) {
+  const chosen = onlyGiven(stack)
+  if (Object.keys(chosen).length > 0) return chosen
+  const { build, ...detected } = detectStack(root)
+  return detected.language ? onlyGiven(detected) : undefined
 }
 
 const MODE_LOCKED = (phase) => `The mode can only change in OFF or LIST (current phase: ${phase}). `
   + 'Switching strategy mid-cycle would leave the current test without its loop; finish the feature or ask the human to run /tdd:off.'
 
-function start(root, { feature, mode }) {
+function start(root, { feature, mode, stack }) {
   const state = loadState(root)
   if (!canChangeMode(state.phase)) return refuse(MODE_LOCKED(state.phase))
-  const configNote = ensureConfig(root)
+  const configNote = ensureConfig(root, chosenOrDetectedStack(root, stack))
   const config = loadConfig(root)
   const chosenMode = mode || config.defaultMode
   if (!MODES.includes(chosenMode)) return refuse(`Unknown mode "${chosenMode}": use inside-out or outside-in.`)
-  writeSkeleton(root, feature, chosenMode)
+  writeSkeleton(root, feature, chosenMode, config.stack)
   return done(root, { ...state, mode: chosenMode, phase: 'LIST', feature, justifiedMocks: [], touchedFiles: [] },
     `${configNote}LIST (${chosenMode}): draft .tdd/test-list.md, then ask the human to run /tdd:approve.`)
 }

@@ -5,6 +5,8 @@ const { readInput, projectRoot, isTddProject, EXIT_ALLOW } = require('./lib/hook
 const { loadState } = require('./lib/state')
 const { readItems } = require('./lib/test-list')
 const { PHASE_RULES } = require('./lib/status')
+const { loadConfig } = require('./lib/config')
+const { stackLine } = require('./lib/stack')
 
 const input = readInput()
 const root = projectRoot(input)
@@ -15,6 +17,7 @@ if (state.phase === 'OFF') process.exit(EXIT_ALLOW)
 const remaining = readItems(root).filter((item) => !item.done).map((item) => item.text)
 const lines = [
   `TDD Guardian (tdd plugin) is active on feature "${state.feature}", mode ${state.mode}.`,
+  stackLine(loadConfig(root).stack) || null,
   `Phase: ${state.phase}. Rules of this phase: ${PHASE_RULES[state.phase]}`,
   state.mode === 'outside-in' ? `Acceptance test: ${state.acceptanceTest || 'not written yet'}` : null,
   `Current test: ${state.currentTest || '-'}`,

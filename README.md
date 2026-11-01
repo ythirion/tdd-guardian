@@ -71,7 +71,7 @@ leaving RED.
 
 | Command | Who | Effect |
 | --- | --- | --- |
-| `/tdd:start <feature> [--mode inside-out\|outside-in]` | human or agent | Creates `.tdd/config.json` if needed (auto-detected from `package.json`, `pom.xml`, `pyproject.toml`, `*.csproj`), sets the mode, enters LIST and drafts `.tdd/test-list.md` |
+| `/tdd:start <feature> [--mode inside-out\|outside-in]` | human or agent | Deduces the stack from the existing code (`package.json`, `pom.xml`, `build.gradle`, `pyproject.toml`, `*.csproj`); in an empty repository only, asks for it with selections: language, then test stack, then additional stack (Spring Boot, Express... or a description). Creates `.tdd/config.json` for it, sets the mode, enters LIST and drafts `.tdd/test-list.md` |
 | `/tdd:approve` | **human only** | Approves the test list: LIST → RED (inside-out) or ACCEPTANCE (outside-in) |
 | `/tdd:next` | human or agent | Moves one phase forward if the exit conditions hold, otherwise says which one failed |
 | `/tdd:status` | anyone | Mode, phase, current test, acceptance test, list progress, last run, justified mocks, review checklist |
@@ -183,6 +183,7 @@ agent before approving the list.
 | Key | Purpose |
 | --- | --- |
 | `defaultMode` | Mode used when `/tdd:start` gets no `--mode` |
+| `stack` | `{ language, testing, additional }`, deduced or chosen at `/tdd:start`; shown in the test list and the session context |
 | `testCommand` | Runs the unit suite only; exit code 0 = green |
 | `acceptanceCommand` | Runs the acceptance suite (outside-in) |
 | `testFilePatterns` / `acceptanceTestPatterns` | Unit and acceptance test files (globs, `.gitignore` style) |

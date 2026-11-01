@@ -61,6 +61,16 @@ const PRESETS = {
     sourceFilePatterns: ['src/main/**'],
     mutationCommand: 'mvn -q org.pitest:pitest-maven:mutationCoverage',
   },
+  gradle: {
+    testCommand: './gradlew -q test',
+    acceptanceCommand: './gradlew -q acceptanceTest',
+    testFilePatterns: ['src/test/**'],
+    acceptanceTestPatterns: ['src/test/**/acceptance/**', '**/*AcceptanceTest.*'],
+    fakePatterns: ['src/test/**/fakes/**'],
+    testSupportPatterns: ['src/test/**/builders/**', 'src/test/**/assertions/**'],
+    sourceFilePatterns: ['src/main/**'],
+    mutationCommand: './gradlew pitest',
+  },
   python: {
     testCommand: 'python -m pytest -q --ignore=tests/acceptance',
     acceptanceCommand: 'python -m pytest -q tests/acceptance',
@@ -106,4 +116,4 @@ function detectConfig(root) {
   return { ecosystem, config: { ...DEFAULT_CONFIG, ...PRESETS[ecosystem] } }
 }
 
-module.exports = { DEFAULT_CONFIG, loadConfig, configPath, detectConfig }
+module.exports = { DEFAULT_CONFIG, PRESETS, loadConfig, configPath, detectConfig }

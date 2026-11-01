@@ -1,6 +1,7 @@
 'use strict'
 const fs = require('node:fs')
 const path = require('node:path')
+const { stackLine } = require('./stack')
 
 const listPath = (root) => path.join(root, '.tdd', 'test-list.md')
 
@@ -11,8 +12,8 @@ as a value (Optional.empty(), Refused, Either), not an exception. Tag a rule ove
 inputs [property]. No code here. Waiting for a human to run /tdd:approve.`
 
 const SKELETONS = {
-  'inside-out': (feature) => `# Test list: ${feature}
-
+  'inside-out': (feature, stack) => `# Test list: ${feature}
+${stack}
 Mode: inside-out, from the core rules outwards.
 ${ORDERING}
 
@@ -20,8 +21,8 @@ ${ORDERING}
 - [ ] <simplest accepted input> → <outcome>
 - [ ] <next input> → <outcome>: <the rule it forces>
 `,
-  'outside-in': (feature) => `# Test list: ${feature}
-
+  'outside-in': (feature, stack) => `# Test list: ${feature}
+${stack}
 Mode: outside-in. One "Scenario:" per acceptance test; its unit examples go indented below it,
 added as collaborators are discovered.
 ${ORDERING}
@@ -31,10 +32,11 @@ ${ORDERING}
 `,
 }
 
-function writeSkeleton(root, feature, mode) {
+function writeSkeleton(root, feature, mode, stack) {
   if (fs.existsSync(listPath(root))) return false
   fs.mkdirSync(path.dirname(listPath(root)), { recursive: true })
-  fs.writeFileSync(listPath(root), SKELETONS[mode](feature))
+  const line = stackLine(stack)
+  fs.writeFileSync(listPath(root), SKELETONS[mode](feature, line ? `\n${line}\n` : ''))
   return true
 }
 
