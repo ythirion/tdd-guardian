@@ -11,14 +11,19 @@ outer: ACCEPTANCE (one red acceptance test per scenario)
 ## The test list
 
 ```markdown
+- [ ] Scenario: an order without lines is refused, and nothing is saved
+      Given an order without lines When it is placed Then it is refused and nothing is saved
+      → drives: the use case signature: a refusal is a value (Placement.Refused), not an exception
+  - [ ] an order without lines is refused
+        → drives: PlaceOrder, the Orders port and its Fake, Placement
 - [ ] Scenario: free shipping above 50 euros
-      Given an order worth 60 euros shipped to France
-      When it is placed
-      Then it is saved with no shipping fees
-  - [ ] an order worth 60 euros has no shipping fees
-  - [ ] placing an order saves it
-- [ ] Scenario: 5 euros of shipping below 50 euros
+      Given an order worth 60 euros When it is placed Then it is saved with no shipping fees
+      → drives: saving through the Orders port, and the shipping fees of an order
 ```
+
+The first scenario is the non-passing case: it decides how the use case reports a refusal before
+any happy path exists. Each scenario and item says, on its `→ drives:` line, which part of the
+implementation it completes.
 
 Scenarios are `- [ ] Scenario: ...` lines. Unit items are indented below their scenario and added as
 collaborators are discovered. `tdd.js next` ticks a scenario when it sees its acceptance test green.

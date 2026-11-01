@@ -25,6 +25,19 @@ describe('tdd.js start', () => {
     assert.equal(state.feature, 'fizzbuzz')
     assert.match(fs.readFileSync(path.join(root, '.tdd/test-list.md'), 'utf8'), /# Test list: fizzbuzz/)
   })
+  for (const mode of ['inside-out', 'outside-in']) {
+    it(`drafts a ${mode} list that opens with the non-passing case and says what each item drives`, () => {
+      const root = aTddProject({ phase: 'OFF' })
+
+      tdd(root, ['start', 'luhn', '--mode', mode])
+
+      const list = fs.readFileSync(path.join(root, '.tdd/test-list.md'), 'utf8')
+      const firstItem = list.split('\n').find((line) => /^- \[ \]/.test(line))
+      assert.match(firstItem, /non-passing case/)
+      assert.match(list, /error as a value/)
+      assert.match(list, /→ drives: /)
+    })
+  }
   it('uses defaultMode without --mode, and creates the config from the detected build file', () => {
     const root = aProject({ 'package.json': '{"name":"shop"}' })
 

@@ -36,9 +36,14 @@ Details of the cycle and baby steps: `references/cycle.md`.
 
 ## 1. LIST
 
-- **Inside-out**: unit cases in business language, from the core rules outwards, simplest first.
+- **Inside-out**: unit cases in business language, from the core rules outwards.
 - **Outside-in**: acceptance scenarios, one `- [ ] Scenario: ...` line each, with Given/When/Then.
   Unit items go indented under their scenario as collaborators are discovered.
+- **Order the list so that each test completes one part of the implementation**, growing the
+  thinnest complete implementation. Under each item, a `→ drives: ...` line says which part.
+- **Start with the non-passing case** (an input that is refused). It decides the signature first:
+  a refusal the business expects is an **error as a value** (`Optional`, `Either`, a `Result` or a
+  sealed type), not an exception; exceptions are for the truly exceptional.
 - Tag an item `[property]` when it states a rule over a range of inputs rather than one example
   (see `references/property-based.md`).
 - No code, no test. Stop and ask the human to review the list and run `/tdd:approve`.
