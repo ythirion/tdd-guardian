@@ -1,0 +1,29 @@
+scripts/lib/proposed.js
+  s_0d25068a86d8ca::t_751eb80206626a 3-4,27-46
+test/hooks/guard-write.test.js
+  s_0d25068a86d8ca::t_5601f02cd3d191 256-306
+scripts/lib/patch.js
+  s_0d25068a86d8ca::t_cfdce363c9fc5c 1-17,19-78
+  s_0d25068a86d8ca::t_a35ddedffabcb9 18
+test/lib/patch.test.js
+  s_0d25068a86d8ca::t_4770f42bd87a23 1-24,26-50
+  s_0d25068a86d8ca::t_a35ddedffabcb9 25
+scripts/guard-write.js
+  s_0d25068a86d8ca::t_751eb80206626a 3-4,11,24-40,43-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cc3e55c70fd62b906bdbf771f76bb50da0b7e4fb",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
