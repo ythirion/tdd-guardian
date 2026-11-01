@@ -253,3 +253,54 @@ describe('guard-write: never in the way when it should not be', () => {
     assert.equal(guardWrite(aWrite(root, '.tdd/notes.md', 'y')).code, ALLOWED)
   })
 })
+
+// GitHub Copilot CLI sends every file creation and edit as its Edit tool with an apply_patch string
+// (captured from Copilot CLI 1.0.105). Paths are relative to the project.
+describe('guard-write: GitHub Copilot apply_patch payloads', () => {
+  const aPatch = (root, ...lines) => toolCall(root, 'Edit', ['*** Begin Patch', ...lines, '*** End Patch', ''].join('\n'))
+  const oneTest = "it('one', () => {})"
+  const RED_WITH_ONE_TEST = { phase: 'RED', state: { unitTestCountAtRed: 1 }, files: { 'src/foo.test.ts': `${oneTest}\n` } }
+
+  it('blocks a patch on a unit test in GREEN, with the same lesson', () => {
+    const root = aTddProject({ phase: 'GREEN', files: { 'src/foo.test.ts': "it('a', () => expect(1).toBe(2))\n" } })
+
+    const result = guardWrite(aPatch(root, '*** Update File: src/foo.test.ts', '@@', "-it('a', () => expect(1).toBe(2))", "+it('a', () => expect(1).toBe(1))"))
+
+    assert.equal(result.code, BLOCKED)
+    assert.match(result.stderr, /GREEN.*tests are read-only/)
+  })
+  it('blocks a patch adding production code in RED, and lets a patch adding one test through', () => {
+    const root = aTddProject(RED_WITH_ONE_TEST)
+
+    assert.equal(guardWrite(aPatch(root, '*** Add File: src/foo.ts', '+export const foo = 1')).code, BLOCKED)
+    assert.equal(guardWrite(aPatch(root, '*** Update File: src/foo.test.ts', '@@', ` ${oneTest}`, "+it('two', () => {})")).code, ALLOWED)
+  })
+  it('blocks a patch adding two tests at once in RED', () => {
+    const root = aTddProject(RED_WITH_ONE_TEST)
+
+    const result = guardWrite(aPatch(root, '*** Update File: src/foo.test.ts', '@@', ` ${oneTest}`, "+it('two', () => {})", "+it('three', () => {})"))
+
+    assert.equal(result.code, BLOCKED)
+    assert.match(result.stderr, /one test at a time/)
+  })
+  it('checks every file of a multi-file patch: production code with a test in GREEN is blocked', () => {
+    const root = aTddProject({ phase: 'GREEN', files: { 'src/foo.test.ts': `${oneTest}\n` } })
+
+    const both = aPatch(root, '*** Add File: src/foo.ts', '+export const foo = 1', '*** Update File: src/foo.test.ts', '@@', `-${oneTest}`)
+    assert.equal(guardWrite(both).code, BLOCKED)
+    assert.equal(guardWrite(aPatch(root, '*** Add File: src/foo.ts', '+export const foo = 1')).code, ALLOWED)
+  })
+  it('blocks deleting or moving away a unit test in GREEN', () => {
+    const root = aTddProject({ phase: 'GREEN', files: { 'src/foo.test.ts': `${oneTest}\n` } })
+
+    assert.equal(guardWrite(aPatch(root, '*** Delete File: src/foo.test.ts')).code, BLOCKED)
+    assert.equal(guardWrite(aPatch(root, '*** Update File: src/foo.ts', '*** Move to: src/foo.test.ts', '@@', '+x')).code, BLOCKED)
+  })
+  it('records every patched file in touchedFiles', () => {
+    const root = aTddProject({ phase: 'GREEN' })
+
+    guardWrite(aPatch(root, '*** Add File: src/a.ts', '+a', '*** Add File: src/b.ts', '+b'))
+
+    assert.deepEqual(readJson(root, '.tdd/state.json').touchedFiles, ['src/a.ts', 'src/b.ts'])
+  })
+})
