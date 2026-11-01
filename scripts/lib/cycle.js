@@ -6,7 +6,7 @@ const path = require('node:path')
 const { loadConfig, configPath, detectConfig, DEFAULT_CONFIG } = require('./config')
 const { writeSkeleton, readItems, unitItems, firstOpen } = require('./test-list')
 const { hashTestCode } = require('./hash')
-const { testCount, testCountsByFile, filesWithNewTests } = require('./measures')
+const { testCount, testCountsByFile, filesWithNewTests, assertionCount } = require('./measures')
 const { runSuite } = require('./runner')
 
 const plural = (n, word) => `${n} new ${word}${n === 1 ? '' : 's'}`
@@ -112,7 +112,55 @@ function leaveRed(root, state, config) {
     + 'Tests, Fakes and builders are read-only. Then `tdd.js next`.\n--- failure ---\n' + run.output.slice(-800))
 }
 
+function leaveGreen(root, state, config) {
+  const run = runSuite(config.testCommand, root)
+  if (!run.green) {
+    return refuse('The unit suite is red: GREEN ends when every unit test passes. '
+      + 'Keep writing the minimal production code for the failing test.\n--- failure ---\n' + run.output.slice(-800))
+  }
+  if (hashTestCode(root, config) !== state.testFilesHashAtGreen) {
+    return refuse('The test code changed during GREEN (tests, Fakes, builders or business assertions). '
+      + 'Green was reached by moving the target, which proves nothing. Restore the test code as it was on entering GREEN '
+      + '(e.g. `git diff` on the test files) and make it pass with production code only.')
+  }
+  return done(root, { ...state, phase: 'REFACTOR', assertionCountAtRefactor: assertionCount(root, config),
+    lastRun: lastRun({ ...state.lastRun, unitGreen: true }) },
+  'Green. REFACTOR: remove duplication, name, extract, refactor the tests towards the guidelines; green after every change. '
+    + `Tick "${state.currentTest}" in .tdd/test-list.md, then \`tdd.js next\`.`)
+}
+
+function refactorExitProblem(root, state, config, items) {
+  const run = runSuite(config.testCommand, root)
+  if (!run.green) {
+    return 'The unit suite is red: a refactoring changes structure, not behaviour, so the suite must stay green. '
+      + 'Undo the last change or fix it.\n--- failure ---\n' + run.output.slice(-800)
+  }
+  const assertions = assertionCount(root, config)
+  if (assertions < (state.assertionCountAtRefactor || 0)) {
+    return `The assertion count dropped from ${state.assertionCountAtRefactor} to ${assertions}: refactoring tests must never remove a check. `
+      + 'Restore it, or move it into a business assertion (counted through assertionMethodPatterns).'
+  }
+  const current = items.find((item) => item.text === state.currentTest)
+  if (current && !current.done) return `Tick "${state.currentTest}" in .tdd/test-list.md before moving on: the list is the progress record.`
+  return null
+}
+
+function leaveRefactor(root, state, config) {
+  const items = readItems(root)
+  const problem = refactorExitProblem(root, state, config, items)
+  if (problem) return refuse(problem)
+  const next = firstOpen(unitItems(items))
+  if (!next) {
+    return done(root, { ...state, phase: 'OFF', lastRun: lastRun({ ...state.lastRun, unitGreen: true }) },
+      `Feature "${state.feature}" done: every item is ticked and the suite is green. OFF. Consider /tdd:mutate to check the tests bite.`)
+  }
+  return done(root, { ...enterRed(root, config, state), lastRun: lastRun({ ...state.lastRun, unitGreen: true }) },
+    `RED: write exactly one unit test for "${next}", see it fail, then \`tdd.js next\`.`)
+}
+
 const NEXT = {
+  REFACTOR: leaveRefactor,
+  GREEN: leaveGreen,
   RED: leaveRed,
   ACCEPTANCE: leaveAcceptance,
   OFF: () => refuse('No feature in progress: the human starts one with /tdd:start <feature>.'),

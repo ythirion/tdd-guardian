@@ -3,6 +3,9 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
+const { hashTestCode } = require('../../scripts/lib/hash')
+const { loadConfig } = require('../../scripts/lib/config')
+const { saveState, loadState } = require('../../scripts/lib/state')
 const { tdd, aTddProject, aProject, readJson, writeFile, GREEN_SUITE, RED_SUITE } = require('../helpers')
 
 const phaseOf = (root) => readJson(root, '.tdd/state.json').phase
@@ -147,5 +150,89 @@ describe('tdd.js next: RED to GREEN', () => {
     assert.equal(state.currentTest, 'says 1 for 1')
     assert.match(state.testFilesHashAtGreen, /^sha256:/)
     assert.equal(state.lastRun.unitGreen, false)
+  })
+})
+
+// Puts a project in GREEN the way tdd.js does: the hash of the test code at that moment.
+function inGreen({ config = {}, files = {} } = {}) {
+  const root = aTddProject({ phase: 'GREEN', mode: 'inside-out', state: { currentTest: 'says 1 for 1' }, config, files: {
+    'src/fizzbuzz.test.ts': "it('says 1 for 1', () => expect(fizzbuzz(1)).toBe('1'))",
+    'test/fakes/clock.ts': 'export const NOW = 0', ...files } })
+  saveState(root, { ...loadState(root), testFilesHashAtGreen: hashTestCode(root, loadConfig(root)) })
+  return root
+}
+
+describe('tdd.js next: GREEN to REFACTOR', () => {
+  it('refuses REFACTOR while the unit suite is red', () => {
+    const root = inGreen({ config: { testCommand: RED_SUITE } })
+
+    const result = tdd(root, ['next'])
+
+    assert.equal(result.code, REFUSED)
+    assert.match(result.out, /unit suite is red/)
+  })
+
+  it('refuses REFACTOR when a test or a Fake changed in GREEN, accepts it otherwise and records the assertion count', () => {
+    const tampered = inGreen()
+    writeFile(tampered, 'test/fakes/clock.ts', 'export const NOW = 1')
+    const refused = tdd(tampered, ['next'])
+    assert.equal(refused.code, REFUSED)
+    assert.match(refused.out, /test code changed during GREEN/)
+
+    const root = inGreen()
+    const accepted = tdd(root, ['next'])
+    assert.equal(accepted.code, OK, accepted.out)
+    assert.equal(phaseOf(root), 'REFACTOR')
+    assert.equal(readJson(root, '.tdd/state.json').assertionCountAtRefactor, 1)
+  })
+})
+
+const twoAssertions = "it('says Fizz for 3', () => {\n  expect(fizzbuzz(3)).toBe('Fizz')\n  expect(fizzbuzz(6)).toBe('Fizz')\n})"
+function inRefactor({ mode = 'inside-out', list = '- [x] says Fizz for 3\n- [ ] says Buzz for 5\n', config = {}, files = {}, state = {} } = {}) {
+  return aTddProject({ phase: 'REFACTOR', mode, config,
+    state: { currentTest: 'says Fizz for 3', assertionCountAtRefactor: 2, ...state },
+    files: { '.tdd/test-list.md': list, 'src/fizzbuzz.test.ts': twoAssertions, ...files } })
+}
+
+describe('tdd.js next: leaving REFACTOR', () => {
+  it('refuses with a red suite, a lower assertion count, or the current item not ticked', () => {
+    const red = tdd(inRefactor({ config: { testCommand: RED_SUITE } }), ['next'])
+    assert.equal(red.code, REFUSED)
+    assert.match(red.out, /unit suite is red/)
+
+    const weaker = tdd(inRefactor({ files: { 'src/fizzbuzz.test.ts': "it('says Fizz for 3', () => expect(fizzbuzz(3)).toBe('Fizz'))" } }), ['next'])
+    assert.equal(weaker.code, REFUSED)
+    assert.match(weaker.out, /assertion count dropped from 2 to 1/)
+
+    const unticked = tdd(inRefactor({ list: '- [ ] says Fizz for 3\n- [ ] says Buzz for 5\n' }), ['next'])
+    assert.equal(unticked.code, REFUSED)
+    assert.match(unticked.out, /Tick "says Fizz for 3"/)
+  })
+  it('accepts extracting three assertions into a business assertion matching assertionMethodPatterns', () => {
+    const root = inRefactor({
+      state: { assertionCountAtRefactor: 3 },
+      config: { assertionMethodPatterns: ['\\.(should|contient|aÉmis)\\w*\\('], testFilePatterns: ['**/*.test.ts', 'test/**'] },
+      files: {
+        'src/fizzbuzz.test.ts': "it('says Fizz for 3', () => {\n  laPartie(saved)\n    .contientLeChasseurAvec('Bernard', 7, 1)\n})",
+        'test/assertions/partie.ts': "export const laPartie = (p) => ({\n  contientLeChasseurAvec(nom, balles, galinettes) {\n"
+          + "    const c = p.chasseurs.find((x) => x.nom === nom)\n    expect(c.balles).toBe(balles)\n    expect(c.galinettes).toBe(galinettes)\n"
+          + "    return this\n  },\n})",
+      },
+    })
+
+    const result = tdd(root, ['next'])
+
+    assert.equal(result.code, OK, result.out)
+  })
+  it('inside-out: goes back to RED while items remain, to OFF when every item is ticked', () => {
+    const itemsLeft = inRefactor()
+    assert.equal(tdd(itemsLeft, ['next']).code, OK)
+    assert.equal(phaseOf(itemsLeft), 'RED')
+
+    const allDone = inRefactor({ list: '- [x] says 1 for 1\n- [x] says Fizz for 3\n' })
+    const result = tdd(allDone, ['next'])
+    assert.equal(result.code, OK, result.out)
+    assert.equal(phaseOf(allDone), 'OFF')
+    assert.match(result.out, /every item is ticked/)
   })
 })
