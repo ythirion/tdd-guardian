@@ -1,4 +1,4 @@
-# tdd-guardian: test list (proposal, awaiting approval)
+# tdd-guardian: test list (approved 2026-11-01)
 
 Built test-first with `node:test`, zero dependency. One item = one test, written and seen red before
 the code. Hook scripts are tested end to end by piping a JSON payload on stdin into a child process
@@ -31,38 +31,38 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 ## A. `scripts/lib/` (core)
 
 ### Config
-- [ ] A1 With no `.tdd/config.json`, the defaults are used (mode outside-in, strict, mock policies allow/justify)
-- [ ] A2 A project config overrides the defaults key by key, and `mockPolicy` per mode
-- [ ] A3 Auto-detection proposes a Node config from `package.json`, a Maven one from `pom.xml`, a Python one from `pyproject.toml`, a .NET one from `*.csproj`
+- [x] A1 With no `.tdd/config.json`, the defaults are used (mode outside-in, strict, mock policies allow/justify)
+- [x] A2 A project config overrides the defaults key by key, and `mockPolicy` per mode
+- [x] A3 Auto-detection proposes a Node config from `package.json`, a Maven one from `pom.xml`, a Python one from `pyproject.toml`, a .NET one from `*.csproj`
 
 ### Glob and file classification
-- [ ] A4 `**/*.test.ts` matches `src/foo.test.ts` and not `src/foo.ts`; `test/**` matches nested files; `*.md` matches at any depth
-- [ ] A5 A file under `test/acceptance/**` is an acceptance test, even though it also matches `test/**`
-- [ ] A6 A file under `test/fakes/**` or `test/builders/**` is test code (same family as unit tests)
-- [ ] A7 `README.md` and `.tdd/test-list.md` are free files
-- [ ] A8 `.tdd/state.json` and `.tdd/config.json` are guard files
-- [ ] A9 A file matching no pattern is production code
-- [ ] A10 Absolute paths and Windows separators are classified relative to the project root
+- [x] A4 `**/*.test.ts` matches `src/foo.test.ts` and not `src/foo.ts`; `test/**` matches nested files; `*.md` matches at any depth
+- [x] A5 A file under `test/acceptance/**` is an acceptance test, even though it also matches `test/**`
+- [x] A6 A file under `test/fakes/**` or `test/builders/**` is test code (same family as unit tests)
+- [x] A7 `README.md` and docs are free files; `.tdd/test-list.md` is its own kind (writable except in GREEN)
+- [x] A8 `.tdd/state.json` and `.tdd/config.json` are guard files
+- [x] A9 A file matching no pattern is production code
+- [x] A10 Absolute paths and Windows separators are classified relative to the project root
 
 ### State
-- [ ] A11 With no state file, the phase is OFF
-- [ ] A12 State is saved and read back as written
-- [ ] A13 The mode can change in OFF and LIST, and is refused in ACCEPTANCE, RED, GREEN, REFACTOR
+- [x] A11 With no state file, the phase is OFF
+- [x] A12 State is saved and read back as written
+- [x] A13 The mode can change in OFF and LIST, and is refused in ACCEPTANCE, RED, GREEN, REFACTOR
 
 ### Counting
-- [ ] A14 Counts tests: `it(`, `test(`, `@Test`, `[Fact]`, `[Theory]`, `def test_`
-- [ ] A15 A property counts as one test: `[Property]` alone, `fc.assert(fc.property(` inside `it(` counts once, `@given` + `def test_` counts once
-- [ ] A16 Detects disabling markers: `.skip`, `xit`, `xdescribe`, `@Disabled`, `@Ignore`, `pytest.mark.skip`, `[Ignore]`
-- [ ] A17 Counts assertions: `expect(`, `assert`, `Check.That`, plus calls matching `assertionMethodPatterns`
-- [ ] A18 The test-code hash is stable, and changes when one byte of a unit test, Fake or builder changes; production files do not affect it
+- [x] A14 Counts tests: `it(`, `test(`, `@Test`, `[Fact]`, `[Theory]`, `def test_`
+- [x] A15 A property counts as one test: `[Property]` alone, `fc.assert(fc.property(` inside `it(` counts once, `@given` + `def test_` counts once
+- [x] A16 Detects disabling markers: `.skip`, `xit`, `xdescribe`, `@Disabled`, `@Ignore`, `pytest.mark.skip`, `[Ignore]`
+- [x] A17 Counts assertions: `expect(`, `assert`, `Check.That`, plus calls matching `assertionMethodPatterns`
+- [x] A18 The test-code hash is stable, and changes when one byte of a unit test, Fake or builder changes; production files do not affect it
 
 ### Mock detection
-- [ ] A19 New lines matching `mockPatterns` are found (only lines added, compared with the old content)
-- [ ] A20 A mock line justified by `tdd-guard: allow-mock <reason>` on the same or previous line is accepted, and its reason extracted
-- [ ] A21 `tdd-guard: allow-mock` with no reason does not justify anything
+- [x] A19 New lines matching `mockPatterns` are found (only lines added, compared with the old content)
+- [x] A20 A mock line justified by `tdd-guard: allow-mock <reason>` on the same or previous line is accepted, and its reason extracted
+- [x] A21 `tdd-guard: allow-mock` with no reason does not justify anything
 
 ### Command runner
-- [ ] A22 Exit code 0 is green, anything else is red; the output tail is kept for messages
+- [x] A22 Exit code 0 is green, anything else is red; the output tail is kept for messages
 
 ## B. `guard-write.js` (PreToolUse `Write|Edit|MultiEdit|NotebookEdit`)
 - [ ] B1 OFF: production, tests and acceptance tests are writable
