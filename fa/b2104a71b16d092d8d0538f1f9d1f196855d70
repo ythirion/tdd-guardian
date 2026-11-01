@@ -1,0 +1,58 @@
+test/lib/mocks.test.js
+  s_0d25068a86d8ca::t_ebd60d608a21c6 19-20,32
+commands/off.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 2,6
+agents/tdd-refactorer.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 7
+scripts/lib/write-checks.js
+  s_0d25068a86d8ca::t_77b502885e310c 54
+scripts/lib/messages.js
+  s_0d25068a86d8ca::t_77b502885e310c 5
+commands/approve.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 6
+test/hooks/human-gate.test.js
+  s_0d25068a86d8ca::t_9e57950bb4c027 25
+agents/tdd-tester.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 7
+  s_0d25068a86d8ca::t_77b502885e310c 42
+scripts/lib/hook-io.js
+  s_0d25068a86d8ca::t_77b502885e310c 23
+scripts/lib/cycle.js
+  s_0d25068a86d8ca::t_e94b72bcd34965 76
+scripts/session-start.js
+  s_0d25068a86d8ca::t_e94b72bcd34965 17
+scripts/tdd.js
+  s_0d25068a86d8ca::t_77b502885e310c 20
+test/hooks/session-start.test.js
+  s_0d25068a86d8ca::t_e94b72bcd34965 20
+test/hooks/guard-write.test.js
+  s_0d25068a86d8ca::t_ebd60d608a21c6 174,180,190
+scripts/check-stop.js
+  s_0d25068a86d8ca::t_77b502885e310c 22
+commands/start.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 9
+scripts/lib/mocks.js
+  s_0d25068a86d8ca::t_77b502885e310c 16
+commands/next.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 8
+agents/tdd-implementer.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 7
+scripts/human-gate.js
+  s_0d25068a86d8ca::t_77b502885e310c 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fab2104a71b16d092d8d0538f1f9d1f196855d70",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
