@@ -1,0 +1,22 @@
+docs/tdd.md
+  s_0d25068a86d8ca::t_e9aa7afc8d30cb 1-101
+README.md
+  s_0d25068a86d8ca::t_6fa8d1b1ed3b92 3-7,13-14
+  s_0d25068a86d8ca::t_14a55c2cd9ea9d 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c714fdab8ad60033165660bfaf23dc34a103ecf2",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
