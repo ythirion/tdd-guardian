@@ -1,0 +1,6 @@
+{
+  "name": "example-fizzbuzz-inside-out",
+  "private": true,
+  "description": "TDD Guardian example: FizzBuzz built inside-out, with one property",
+  "scripts": { "test": "node --test test/*.test.js" }
+}
