@@ -1,0 +1,29 @@
+test/helpers.js
+  s_0d25068a86d8ca::t_3e3f99f9afdf27 1-23
+scripts/lib/config.js
+  s_0d25068a86d8ca::t_26d2f6368ea7d3 1,4-23,26-27
+  s_0d25068a86d8ca::t_615ee4f1b4c796 38-100
+  s_0d25068a86d8ca::t_b25731b608b5b1 2-3,24-25,28-37
+package.json
+  s_0d25068a86d8ca::t_f0ad0b912be323 9
+test/lib/config.test.js
+  s_0d25068a86d8ca::t_3e3f99f9afdf27 1-4,6-14,36
+  s_0d25068a86d8ca::t_34119fd6b8182e 5,25-34
+  s_0d25068a86d8ca::t_f470b8d7cddf98 15-24,35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a551a5f7cedba7955a1835e21ad814dae10b5dec",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
