@@ -131,10 +131,10 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] E6 `strict: false`: warns without blocking
 
 ## F. `session-start.js` and `human-gate.js`
-- [ ] F1 SessionStart, active phase: context lists mode, phase, acceptance test, current test, remaining items, rules of the phase
-- [ ] F2 SessionStart, OFF: prints nothing
-- [ ] F3 UserPromptSubmit `/tdd:approve` performs LIST → RED/ACCEPTANCE; other prompts pass unchanged
-- [ ] F4 UserPromptSubmit `/tdd:off` performs the move to OFF
+- [x] F1 SessionStart, active phase: context lists mode, phase, acceptance test, current test, remaining items, rules of the phase
+- [x] F2 SessionStart, OFF: prints nothing
+- [x] F3 UserPromptSubmit `/tdd:approve` performs LIST → RED/ACCEPTANCE; other prompts pass unchanged
+- [x] F4 UserPromptSubmit `/tdd:off` performs the move to OFF
 
 ## G. Plugin packaging (checked by a test that parses the files)
 - [ ] G1 `plugin.json`, `hooks.json` are valid and every script they reference exists
