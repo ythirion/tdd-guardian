@@ -1,0 +1,150 @@
+# tdd-guardian: test list (proposal, awaiting approval)
+
+Built test-first with `node:test`, zero dependency. One item = one test, written and seen red before
+the code. Hook scripts are tested end to end by piping a JSON payload on stdin into a child process
+and checking exit code and stderr. Test commands of the fixture projects are real processes
+(`node -e "process.exit(1)"`), not mocks.
+
+## Spec adjustments after reading the Claude Code docs (2026-11-01)
+
+1. **Command names.** Plugin commands are namespaced by the plugin name: `commands/tdd/start.md`
+   in a plugin named `tdd-guardian` becomes `/tdd-guardian:tdd:start`. To get the spec's
+   `/tdd:start`, the plugin is named `tdd` (with `displayName: "TDD Guardian"`) and the commands
+   are flat files `commands/start.md`, `commands/approve.md`, ...
+2. **Human-only `approve` / `off`.** The docs say `!` command execution "runs through the Bash
+   tool" and do not say whether PreToolUse hooks fire on it. If they do, `guard-bash.js` would
+   also block the human. Safer mechanism: a **UserPromptSubmit** hook (`human-gate.js`). It only
+   fires on prompts the human types, and receives `/tdd:approve` as typed. It performs the
+   transition itself and writes a one-time token; `tdd.js approve|off` refuses without it.
+   `guard-bash.js` then blocks every agent call to `tdd.js approve|off`, with no ambiguity.
+   `approve.md` and `off.md` also set `disable-model-invocation: true`.
+3. **Tool inputs.** `Write` → `file_path`, `content`; `Edit` → `file_path`, `old_string`,
+   `new_string`, `replace_all`; `MultiEdit` → `file_path`, `edits[]`; `NotebookEdit` →
+   `notebook_path`. All four are handled; the proposed content is rebuilt from the file on disk.
+4. **Plugin agents** cannot declare hooks or `permissionMode`; that is fine because plugin
+   hooks also fire on subagent tool calls. Agents use `tools` to restrict themselves.
+5. **"The only failing unit test"** (RED → GREEN) cannot be read from an exit code. It is
+   implied: the suite was green when leaving REFACTOR / approval, production code is read-only in
+   RED, and exactly one new test was added. So: suite red + exactly one new test.
+6. **SessionStart** context goes out as `hookSpecificOutput.additionalContext`, written as facts.
+
+## A. `scripts/lib/` (core)
+
+### Config
+- [ ] A1 With no `.tdd/config.json`, the defaults are used (mode outside-in, strict, mock policies allow/justify)
+- [ ] A2 A project config overrides the defaults key by key, and `mockPolicy` per mode
+- [ ] A3 Auto-detection proposes a Node config from `package.json`, a Maven one from `pom.xml`, a Python one from `pyproject.toml`, a .NET one from `*.csproj`
+
+### Glob and file classification
+- [ ] A4 `**/*.test.ts` matches `src/foo.test.ts` and not `src/foo.ts`; `test/**` matches nested files; `*.md` matches at any depth
+- [ ] A5 A file under `test/acceptance/**` is an acceptance test, even though it also matches `test/**`
+- [ ] A6 A file under `test/fakes/**` or `test/builders/**` is test code (same family as unit tests)
+- [ ] A7 `README.md` and `.tdd/test-list.md` are free files
+- [ ] A8 `.tdd/state.json` and `.tdd/config.json` are guard files
+- [ ] A9 A file matching no pattern is production code
+- [ ] A10 Absolute paths and Windows separators are classified relative to the project root
+
+### State
+- [ ] A11 With no state file, the phase is OFF
+- [ ] A12 State is saved and read back as written
+- [ ] A13 The mode can change in OFF and LIST, and is refused in ACCEPTANCE, RED, GREEN, REFACTOR
+
+### Counting
+- [ ] A14 Counts tests: `it(`, `test(`, `@Test`, `[Fact]`, `[Theory]`, `def test_`
+- [ ] A15 A property counts as one test: `[Property]` alone, `fc.assert(fc.property(` inside `it(` counts once, `@given` + `def test_` counts once
+- [ ] A16 Detects disabling markers: `.skip`, `xit`, `xdescribe`, `@Disabled`, `@Ignore`, `pytest.mark.skip`, `[Ignore]`
+- [ ] A17 Counts assertions: `expect(`, `assert`, `Check.That`, plus calls matching `assertionMethodPatterns`
+- [ ] A18 The test-code hash is stable, and changes when one byte of a unit test, Fake or builder changes; production files do not affect it
+
+### Mock detection
+- [ ] A19 New lines matching `mockPatterns` are found (only lines added, compared with the old content)
+- [ ] A20 A mock line justified by `tdd-guard: allow-mock <reason>` on the same or previous line is accepted, and its reason extracted
+- [ ] A21 `tdd-guard: allow-mock` with no reason does not justify anything
+
+### Command runner
+- [ ] A22 Exit code 0 is green, anything else is red; the output tail is kept for messages
+
+## B. `guard-write.js` (PreToolUse `Write|Edit|MultiEdit|NotebookEdit`)
+- [ ] B1 OFF: production, tests and acceptance tests are writable
+- [ ] B2 Any phase: `.tdd/state.json` is blocked
+- [ ] B3 GREEN: an `Edit` on `src/foo.test.ts` is blocked, with a message quoting the rule, the reason and the expected action
+- [ ] B4 GREEN: an `Edit` on `test/fakes/in-memory-orders.ts` is blocked
+- [ ] B5 GREEN: a builder in `test/builders/**` is blocked
+- [ ] B6 GREEN: production code is writable; `.tdd/test-list.md` is blocked
+- [ ] B7 RED: a `Write` on `src/foo.ts` is blocked
+- [ ] B8 RED: writing one new test is allowed; a builder in `test/builders/**` is allowed
+- [ ] B9 RED: adding two tests at once is blocked (one file, then across two files)
+- [ ] B10 RED: adding one `[Property]` / `fc.assert(fc.property(` counts as exactly one new test
+- [ ] B11 RED: adding `it.skip(` is blocked
+- [ ] B12 LIST: everything is blocked except `.tdd/test-list.md`
+- [ ] B13 ACCEPTANCE: a unit test or production code is blocked; one acceptance test is allowed; two are blocked
+- [ ] B14 REFACTOR: production, tests and acceptance tests are writable
+- [ ] B15 `README.md` is writable in every phase
+- [ ] B16 Outside-in, `justify`: a new `jest.fn()` without a reason is blocked, the message points to `references/fakes.md` and suggests a Fake
+- [ ] B17 Outside-in, `justify`: with `tdd-guard: allow-mock <reason>` it passes and is appended to `justifiedMocks`
+- [ ] B18 `forbid`: a justified mock is still blocked
+- [ ] B19 Inside-out, `allow`: `jest.fn()` passes without a reason
+- [ ] B20 `Edit`, `MultiEdit` and `NotebookEdit` payloads are rebuilt into the proposed content
+- [ ] B21 Every written file is recorded in `touchedFiles`
+- [ ] B22 `strict: false`: a blocked case exits 0 with a warning on stderr
+- [ ] B23 Invalid JSON on stdin, or no `.tdd/` at all: lets the tool through (never breaks a non-TDD session)
+
+## C. `tdd.js` (phase transition CLI)
+- [ ] C1 `start <feature> --mode inside-out` from OFF enters LIST with the mode and writes a test-list skeleton
+- [ ] C2 `start` without `--mode` uses `defaultMode`; creates `.tdd/config.json` from detection when missing
+- [ ] C3 `start` / `mode` refuse to change the mode outside OFF and LIST
+- [ ] C4 `next` in LIST refuses: approval is human-only
+- [ ] C5 Inside-out: `approve` (with a human token) goes from LIST to RED and records the test count
+- [ ] C6 Outside-in: `approve` goes from LIST to ACCEPTANCE
+- [ ] C7 `approve` / `off` without a valid human token are refused, and the token is single-use
+- [ ] C8 ACCEPTANCE → RED: refused with zero or two new acceptance tests, or a green acceptance suite; accepted with one new failing acceptance test
+- [ ] C9 RED → GREEN: refused when the unit suite is green
+- [ ] C10 RED → GREEN: refused with two new tests; accepted with one new failing test; records the test-code hash
+- [ ] C11 GREEN → REFACTOR: refused when the unit suite is red
+- [ ] C12 GREEN → REFACTOR: refused when test, Fake or test support files changed; accepted otherwise; records the assertion count
+- [ ] C13 REFACTOR: refused when the suite is red, when the assertion count dropped, or when the current item is not ticked
+- [ ] C14 REFACTOR: extracting three assertions into a business assertion matching `assertionMethodPatterns` is accepted
+- [ ] C15 Inside-out REFACTOR → RED while unticked items remain; → OFF when all are ticked
+- [ ] C16 Outside-in REFACTOR → RED while the acceptance test is red
+- [ ] C17 Outside-in REFACTOR → ACCEPTANCE once the acceptance test is green with scenarios left
+- [ ] C18 Outside-in REFACTOR → OFF when every scenario is green and every item ticked
+- [ ] C19 Every refusal explains which condition failed and what to do
+- [ ] C20 `status` prints mode, phase, current test, acceptance test, list progress, last run, justified mocks and the review checklist
+- [ ] C21 `commitOnRefactor` commits with a Conventional Commit message when the project is a git repo (skipped otherwise)
+- [ ] C22 `mutate` runs `mutationCommand` on `touchedFiles`, prints the install hint when the tool is missing, never fails
+
+## D. `check-stop.js` (Stop)
+- [ ] D1 GREEN with a red unit suite: stopping is blocked
+- [ ] D2 GREEN with `stop_hook_active`: stopping is allowed with a warning
+- [ ] D3 REFACTOR with a red unit suite: blocked
+- [ ] D4 RED with no new failing test: blocked with a reminder
+- [ ] D5 OFF, LIST, or green suite: allowed
+
+## E. `guard-bash.js` (PreToolUse `Bash`)
+- [ ] E1 GREEN: `sed -i` on a test file is blocked
+- [ ] E2 GREEN: `>`, `>>`, `tee`, `cp`, `mv`, `rm`, `git checkout` / `git restore` on a test file are blocked
+- [ ] E3 GREEN: running the test command, or `cat` on a test file, is allowed
+- [ ] E4 Any phase: an agent call to `tdd.js off` or `tdd.js approve` is blocked
+- [ ] E5 Any phase: a write into `.tdd/` is blocked; `node tdd.js next` is allowed
+- [ ] E6 `strict: false`: warns without blocking
+
+## F. `session-start.js` and `human-gate.js`
+- [ ] F1 SessionStart, active phase: context lists mode, phase, acceptance test, current test, remaining items, rules of the phase
+- [ ] F2 SessionStart, OFF: prints nothing
+- [ ] F3 UserPromptSubmit `/tdd:approve` performs LIST → RED/ACCEPTANCE; other prompts pass unchanged
+- [ ] F4 UserPromptSubmit `/tdd:off` performs the move to OFF
+
+## G. Plugin packaging (checked by a test that parses the files)
+- [ ] G1 `plugin.json`, `hooks.json` are valid and every script they reference exists
+- [ ] G2 `SKILL.md` is under 200 lines, has the trigger description, links every reference that exists
+- [ ] G3 Each agent has a restricted `tools` list (`tdd-implementer` has no access to the test list)
+- [ ] G4 `claude plugin validate .` passes (manual check)
+
+## H. Examples (end to end, run by a test that drives `tdd.js` + hooks through a full cycle)
+- [ ] H1 FizzBuzz inside-out, with the property "every multiple of 15 is FizzBuzz"
+- [ ] H2 "Place an order" outside-in: in-memory repository Fake, shared contract test, `OrderBuilder`
+      with Object Mothers, business assertions on the saved order
+
+## I. Docs
+- [ ] I1 README: installation, configuration, both modes, Fakes vs mocks, known limits (Bash guard is a heuristic)
+- [ ] I2 Skill references: cycle, green-moves, inside-out, outside-in, fakes, naming-and-organization, test-data-builders, business-assertions, property-based

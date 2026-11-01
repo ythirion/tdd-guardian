@@ -1,0 +1,11 @@
+{
+  "name": "tdd-guardian",
+  "version": "0.1.0",
+  "description": "Claude Code plugin that enforces Red-Green-Refactor on the agent (inside-out and outside-in)",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test test/"
+  }
+}
