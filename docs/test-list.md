@@ -137,10 +137,11 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] F4 UserPromptSubmit `/tdd:off` performs the move to OFF
 
 ## G. Plugin packaging (checked by a test that parses the files)
-- [ ] G1 `plugin.json`, `hooks.json` are valid and every script they reference exists
-- [ ] G2 `SKILL.md` is under 200 lines, has the trigger description, links every reference that exists
-- [ ] G3 Each agent has a restricted `tools` list (`tdd-implementer` has no access to the test list)
-- [ ] G4 `claude plugin validate .` passes (manual check)
+- [x] G1 `plugin.json`, `hooks.json` are valid and every script they reference exists
+- [x] G2 `SKILL.md` is under 200 lines, has the trigger description, links every reference that exists
+- [x] G3 Each agent has a restricted `tools` list
+- [x] F5 `guard-read.js`: `tdd-implementer` cannot read `.tdd/` (hook inputs carry `agent_type` for subagents)
+- [x] G4 `claude plugin validate .` passes (manual check, 2026-11-01)
 
 ## H. Examples (end to end, run by a test that drives `tdd.js` + hooks through a full cycle)
 - [ ] H1 FizzBuzz inside-out, with the property "every multiple of 15 is FizzBuzz"

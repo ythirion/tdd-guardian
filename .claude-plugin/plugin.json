@@ -1,0 +1,10 @@
+{
+  "name": "tdd",
+  "displayName": "TDD Guardian",
+  "version": "0.1.0",
+  "description": "Enforces Red-Green-Refactor on the agent with hooks, inside-out or outside-in, and teaches the rule behind every block",
+  "author": { "name": "Yoan Thirion", "url": "https://github.com/ythirion" },
+  "repository": "https://github.com/ythirion/tdd-guardians",
+  "license": "MIT",
+  "keywords": ["tdd", "test-driven-development", "red-green-refactor", "outside-in", "fakes", "teaching"]
+}
