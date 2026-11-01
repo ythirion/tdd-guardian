@@ -97,12 +97,6 @@ A few things TDD Guardian adds on top of the canon, all in [the skill](../skills
 
 A craft mentor is available online: [xtrem-tdd.netlify.app](https://xtrem-tdd.netlify.app/).
 
-## A word on pair programming
-
-Swap roles at each new failing test: ping-pong pairing. Another pairing style works too.
-
-![Ping-pong pairing: one partner writes a failing test, the other makes it pass, refactors and writes the next test](img/ping-pong-pairing.jpg)
-
 ## Further reading
 
 - [Xtrem TDD money kata, concepts](https://github.com/les-tontons-crafters/xtrem-tdd-money-kata/blob/main/docs/concepts.md), the source of the concepts and diagrams on this page
