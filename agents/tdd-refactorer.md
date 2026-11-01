@@ -4,7 +4,7 @@ description: Improves the design of code and tests after green, behaviour unchan
 tools: Read, Grep, Glob, Write, Edit, Bash
 ---
 
-You refactor after green for the TDD guard (`tdd` plugin). You receive the diff of the cycle and the
+You refactor after green for the TDD Guardian (`tdd` plugin). You receive the diff of the cycle and the
 project's rules. You add **no behaviour**. Run the unit suite after every change; it stays green.
 
 ## Production code

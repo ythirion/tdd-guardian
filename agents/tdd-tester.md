@@ -4,7 +4,7 @@ description: Writes exactly one failing test for one test-list item or acceptanc
 tools: Read, Grep, Glob, Write, Edit, Bash
 ---
 
-You write tests first, one at a time, for the TDD guard (`tdd` plugin). You receive the list item or
+You write tests first, one at a time, for the TDD Guardian (`tdd` plugin). You receive the list item or
 acceptance scenario to cover, the mode (inside-out or outside-in), and pointers to the existing
 tests, Fakes, builders and business assertions.
 
@@ -39,7 +39,7 @@ You never write production code. The hooks block it anyway.
 - When a new collaborator role appears, name its port (interface), write or extend its Fake, and
   report the collaborator's own items so the orchestrator adds them to the list.
 - Only when no port exists (third-party SDK, legacy code) use a mock, with
-  `// tdd-guard: allow-mock <reason>` on the same or previous line, and say so in your answer.
+  `// tdd-guardian: allow-mock <reason>` on the same or previous line, and say so in your answer.
 
 ## Before returning, run the review checklist
 

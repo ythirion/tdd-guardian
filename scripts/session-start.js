@@ -14,7 +14,7 @@ if (state.phase === 'OFF') process.exit(EXIT_ALLOW)
 
 const remaining = readItems(root).filter((item) => !item.done).map((item) => item.text)
 const lines = [
-  `TDD guard (tdd plugin) is active on feature "${state.feature}", mode ${state.mode}.`,
+  `TDD Guardian (tdd plugin) is active on feature "${state.feature}", mode ${state.mode}.`,
   `Phase: ${state.phase}. Rules of this phase: ${PHASE_RULES[state.phase]}`,
   state.mode === 'outside-in' ? `Acceptance test: ${state.acceptanceTest || 'not written yet'}` : null,
   `Current test: ${state.currentTest || '-'}`,

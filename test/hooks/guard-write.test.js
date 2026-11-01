@@ -171,13 +171,13 @@ describe('guard-write: mock policy', () => {
     assert.match(result.stderr, /jest\.fn\(\)/)
     assert.match(result.stderr, /references\/fakes\.md/)
     assert.match(result.stderr, /Fake/)
-    assert.match(result.stderr, /tdd-guard: allow-mock <reason>/)
+    assert.match(result.stderr, /tdd-guardian: allow-mock <reason>/)
   })
   it('outside-in, justify: lets a mock with a reason through and records it for review', () => {
     const root = aTddProject(RED_OUTSIDE_IN)
 
     const result = guardWrite(aWrite(root, 'src/notify.test.ts',
-      aTestWith('const sdk = jest.fn() // tdd-guard: allow-mock third-party SDK with no port')))
+      aTestWith('const sdk = jest.fn() // tdd-guardian: allow-mock third-party SDK with no port')))
 
     assert.equal(result.code, ALLOWED)
     assert.deepEqual(readJson(root, '.tdd/state.json').justifiedMocks,
@@ -187,7 +187,7 @@ describe('guard-write: mock policy', () => {
     const root = aTddProject({ ...RED_OUTSIDE_IN, config: { mockPolicy: { 'outside-in': 'forbid' } } })
 
     const result = guardWrite(aWrite(root, 'src/notify.test.ts',
-      aTestWith('const sdk = jest.fn() // tdd-guard: allow-mock third-party SDK with no port')))
+      aTestWith('const sdk = jest.fn() // tdd-guardian: allow-mock third-party SDK with no port')))
 
     assert.equal(result.code, BLOCKED)
     assert.match(result.stderr, /forbid/)

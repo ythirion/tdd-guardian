@@ -13,7 +13,7 @@ function addedLines(before, after) {
   return added
 }
 
-const JUSTIFICATION = /tdd-guard:\s*allow-mock\b(.*)$/
+const JUSTIFICATION = /tdd-guardian:\s*allow-mock\b(.*)$/
 
 function reasonOn(text = '') {
   const match = JUSTIFICATION.exec(text)

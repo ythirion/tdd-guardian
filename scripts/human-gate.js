@@ -13,6 +13,6 @@ const root = projectRoot(input)
 if (!match || !isTddProject(root)) process.exit(EXIT_ALLOW)
 
 const result = match[1] === 'approve' ? cycle.approve(root) : cycle.off(root)
-const context = `tdd-guard: the human ran /tdd:${match[1]}. ${result.ok ? '' : 'Not applied: '}${result.message}`
+const context = `tdd-guardian: the human ran /tdd:${match[1]}. ${result.ok ? '' : 'Not applied: '}${result.message}`
 process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: context } }))
 process.exit(EXIT_ALLOW)

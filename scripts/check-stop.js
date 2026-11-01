@@ -19,7 +19,7 @@ const { phase } = state
 // Already continued once because of this hook: let it stop rather than loop forever.
 const blockOnce = (lesson) => {
   if (input.stop_hook_active) {
-    process.stderr.write(`tdd-guard: warning, stopping anyway (already blocked once):\n${lesson}\n`)
+    process.stderr.write(`tdd-guardian: warning, stopping anyway (already blocked once):\n${lesson}\n`)
     process.exit(EXIT_ALLOW)
   }
   block(lesson, config)

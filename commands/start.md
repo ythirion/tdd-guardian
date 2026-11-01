@@ -6,7 +6,7 @@ allowed-tools: Bash(node ${CLAUDE_PLUGIN_ROOT}/scripts/tdd.js *)
 
 !`node "${CLAUDE_PLUGIN_ROOT}/scripts/tdd.js" start $ARGUMENTS || true`
 
-The output above comes from the TDD guard. If it created `.tdd/config.json`, show the human the
+The output above comes from the TDD Guardian. If it created `.tdd/config.json`, show the human the
 detected `testCommand`, `acceptanceCommand` and file patterns and ask them to confirm or correct them.
 
 Then load the `tdd` skill and draft `.tdd/test-list.md` for this feature, following the mode:

@@ -51,7 +51,7 @@ function mockPolicyCheck({ config, state, before, after }) {
     ? { ...fake, rule: `mockPolicy is "forbid" in ${state.mode} mode: mocking libraries are not allowed, even justified (${where}).`,
       action: 'write a Fake: a small in-memory implementation of the port (see references/fakes.md), and assert on the state it exposes.' }
     : { ...fake, action: 'replace it with a Fake (in-memory implementation of the port, in fakePatterns, see references/fakes.md) and assert on the state it exposes. '
-      + 'If no port exists (third-party SDK, legacy code), add `tdd-guard: allow-mock <reason>` on the same or previous line.' }
+      + 'If no port exists (third-party SDK, legacy code), add `tdd-guardian: allow-mock <reason>` on the same or previous line.' }
 }
 
 // Checks on the proposed content of the test being written in ACCEPTANCE or RED.

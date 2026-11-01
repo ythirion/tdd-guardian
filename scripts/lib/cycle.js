@@ -73,7 +73,7 @@ function approve(root) {
 
 function off(root) {
   const state = loadState(root)
-  return done(root, { ...state, phase: 'OFF' }, 'TDD guard is OFF: every file is writable again.')
+  return done(root, { ...state, phase: 'OFF' }, 'TDD Guardian is OFF: every file is writable again.')
 }
 
 function leaveAcceptance(root, state, config) {

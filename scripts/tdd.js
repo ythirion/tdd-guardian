@@ -17,7 +17,7 @@ const positional = () => rest.filter((arg, i) => !arg.startsWith('--') && !(rest
 // Claude Code sets CLAUDECODE in the shell of its Bash tool: approving or stopping is not the agent's call.
 function humanOnly(action) {
   return () => process.env.CLAUDECODE
-    ? { ok: false, message: 'tdd-guard: approve and off are reserved for the human. Why: the test list review and the decision to stop '
+    ? { ok: false, message: 'tdd-guardian: approve and off are reserved for the human. Why: the test list review and the decision to stop '
       + 'enforcing TDD are human checkpoints. Do instead: ask the human to run /tdd:approve or /tdd:off.' }
     : action()
 }

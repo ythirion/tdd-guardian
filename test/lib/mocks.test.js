@@ -16,8 +16,8 @@ describe('Mock detection', () => {
   })
   it('accepts a mock justified on the same or the previous line, and keeps the reason', () => {
     const after = [
-      'const sdk = jest.fn() // tdd-guard: allow-mock third-party SDK with no port',
-      '// tdd-guard: allow-mock legacy mailer, no seam yet',
+      'const sdk = jest.fn() // tdd-guardian: allow-mock third-party SDK with no port',
+      '// tdd-guardian: allow-mock legacy mailer, no seam yet',
       'jest.mock("../legacy/mailer")',
     ].join('\n')
 
@@ -29,7 +29,7 @@ describe('Mock detection', () => {
     ])
   })
   it('does not accept the marker without a reason', () => {
-    const [mock] = findNewMocks('', 'const save = jest.fn() // tdd-guard: allow-mock', jest)
+    const [mock] = findNewMocks('', 'const save = jest.fn() // tdd-guardian: allow-mock', jest)
 
     assert.equal(mock.justified, false)
   })

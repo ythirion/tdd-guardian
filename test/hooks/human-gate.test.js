@@ -22,7 +22,7 @@ describe('human-gate', () => {
     assert.equal(other.stdout, '')
   })
 
-  it('turns the guard off when the human types /tdd:off', () => {
+  it('turns the guardian off when the human types /tdd:off', () => {
     const root = aTddProject({ phase: 'GREEN' })
 
     humanTypes(root, '/tdd:off')

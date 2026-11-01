@@ -20,7 +20,7 @@ const isTddProject = (root) => fs.existsSync(path.join(root, '.tdd'))
 // Blocks with the lesson on stderr (fed back to Claude), or only warns when strict is false.
 function block(lessonText, config) {
   if (config && config.strict === false) {
-    process.stderr.write(`tdd-guard: warning (strict: false), not blocking:\n${lessonText}\n`)
+    process.stderr.write(`tdd-guardian: warning (strict: false), not blocking:\n${lessonText}\n`)
     process.exit(EXIT_ALLOW)
   }
   process.stderr.write(lessonText + '\n')

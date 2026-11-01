@@ -17,7 +17,7 @@ describe('session-start', () => {
     const { hookSpecificOutput } = JSON.parse(result.stdout)
     assert.equal(hookSpecificOutput.hookEventName, 'SessionStart')
     const context = hookSpecificOutput.additionalContext
-    for (const expected of [/outside-in/, /Phase: GREEN/, /Acceptance test: test\/acceptance\/shipping\.test\.ts/,
+    for (const expected of [/TDD Guardian/, /outside-in/, /Phase: GREEN/, /Acceptance test: test\/acceptance\/shipping\.test\.ts/,
       /Current test: an order worth 60 has no fees/, /Remaining: Scenario: free shipping; an order worth 60 has no fees; b/,
       /read-only/]) {
       assert.match(context, expected)
