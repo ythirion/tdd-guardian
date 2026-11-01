@@ -90,4 +90,21 @@ describe('guard-write: one test at a time', () => {
 
     assert.equal(guardWrite(aWrite(root, 'src/baz.test.ts', "it('another new one', () => {})")).code, BLOCKED)
   })
+  it('counts one new property as exactly one new test', () => {
+    const root = aTddProject(RED_WITH_ONE_TEST)
+    const property = "it('every multiple of 15 is FizzBuzz', () => {\n  fc.assert(fc.property(fc.integer(), (n) => fizzbuzz(15 * n) === 'FizzBuzz'))\n})"
+
+    assert.equal(guardWrite(aWrite(root, 'src/foo.test.ts', `${oneTest}\n${property}`)).code, ALLOWED)
+    assert.equal(guardWrite(aWrite(root, 'test/Unit/FizzBuzzTest.cs', '[Property]\npublic Property P() => Prop.ForAll(...);')).code, ALLOWED)
+  })
+
+  it('blocks a test disabled with it.skip(', () => {
+    const root = aTddProject(RED_WITH_ONE_TEST)
+
+    const result = guardWrite(anEdit(root, 'src/foo.test.ts', "it('one'", "it.skip('one'"))
+
+    assert.equal(result.code, BLOCKED)
+    assert.match(result.stderr, /it\.skip\(/)
+    assert.match(result.stderr, /never disabled/)
+  })
 })
