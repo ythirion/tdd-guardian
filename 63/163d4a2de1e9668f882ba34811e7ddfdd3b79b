@@ -1,0 +1,58 @@
+skills/tdd/references/property-based.md
+  s_0d25068a86d8ca::t_5b4ae2bd9ea1bb 19
+  s_0d25068a86d8ca::t_9e57950bb4c027 27
+test/examples/place-an-order-outside-in.test.js
+  s_0d25068a86d8ca::t_f001f7b59ec4e8 138,150,159,164,174,182,190-191,203
+  s_0d25068a86d8ca::t_0f972b8d1ccc8a 104
+test/examples/luhn-inside-out.test.js
+  s_0d25068a86d8ca::t_f001f7b59ec4e8 89
+examples/luhn-inside-out/README.md
+  s_0d25068a86d8ca::t_1ef363c96601cd 1,7-19,21-22,24-26
+docs/test-list.md
+  s_0d25068a86d8ca::t_77b502885e310c 62-63,86
+  s_0d25068a86d8ca::t_1ef363c96601cd 152-153
+  s_0d25068a86d8ca::t_9e57950bb4c027 44,156
+examples/luhn-inside-out/.tdd/test-list.md
+  s_0d25068a86d8ca::t_f001f7b59ec4e8 3,5-13
+skills/tdd/references/outside-in.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 29
+  s_0d25068a86d8ca::t_5b4ae2bd9ea1bb 14-20,23-24
+examples/place-an-order-outside-in/.tdd/test-list.md
+  s_0d25068a86d8ca::t_f001f7b59ec4e8 3,5-12
+skills/tdd/references/inside-out.md
+  s_0d25068a86d8ca::t_5b4ae2bd9ea1bb 13-15,18-24,27-28
+examples/place-an-order-outside-in/README.md
+  s_0d25068a86d8ca::t_1ef363c96601cd 4,8-19,21-27,29-30
+README.md
+  s_0d25068a86d8ca::t_77b502885e310c 111
+  s_0d25068a86d8ca::t_1ef363c96601cd 174-179
+  s_0d25068a86d8ca::t_9e57950bb4c027 6,37,72,191,194
+test/cli/tdd.test.js
+  s_0d25068a86d8ca::t_692db2387822f7 29,35-40
+skills/tdd/SKILL.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 3,6
+  s_0d25068a86d8ca::t_77b502885e310c 117
+  s_0d25068a86d8ca::t_5b4ae2bd9ea1bb 39-55
+skills/tdd/references/cycle.md
+  s_0d25068a86d8ca::t_9e57950bb4c027 25,30
+skills/tdd/references/fakes.md
+  s_0d25068a86d8ca::t_77b502885e310c 80
+scripts/lib/test-list.js
+  s_0d25068a86d8ca::t_e2489a5853ce2b 7-11,16,19-21,25-26,29-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "63163d4a2de1e9668f882ba34811e7ddfdd3b79b",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
