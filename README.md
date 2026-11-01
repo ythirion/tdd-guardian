@@ -1,6 +1,7 @@
 # TDD Guardian
 
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?logo=claude&logoColor=white)](https://docs.claude.com/en/docs/claude-code/plugins)
+[![GitHub Copilot CLI: experimental](https://img.shields.io/badge/GitHub%20Copilot%20CLI-experimental-8957E5?logo=githubcopilot&logoColor=white)](#github-copilot-cli-experimental)
 [![Built with Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-D97757?logo=claude&logoColor=white)](https://claude.com/claude-code)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Node.js ≥ 18](https://img.shields.io/badge/node-%E2%89%A5%2018-339933?logo=node.js&logoColor=white)](https://nodejs.org)
@@ -32,6 +33,39 @@ For development, load the folder directly: `claude --plugin-dir /path/to/tdd-gua
 
 Requirements: Node.js 18 or later on the `PATH` (the hooks are plain Node scripts with no dependency,
 so they run on macOS, Linux and Windows). The plugin's own test suite needs Node 21 or later.
+
+### GitHub Copilot CLI (experimental)
+
+The same plugin loads in [GitHub Copilot CLI](https://docs.github.com/copilot/concepts/agents/copilot-cli/about-cli-plugins),
+which reads Claude Code plugins and their hooks:
+
+```sh
+copilot plugin marketplace add ythirion/tdd-guardians
+copilot plugin install tdd@tdd-guardians
+```
+
+For development: `copilot --plugin-dir /path/to/tdd-guardians`.
+
+What was adapted, from the hook payloads captured with Copilot CLI 1.0.105:
+
+| Copilot behaviour | How TDD Guardian handles it |
+| --- | --- |
+| Every file creation and edit is its `Edit` tool with an `apply_patch` string (`*** Add File`, `*** Update File`, `*** Move to`, `*** Delete File`), possibly over several files | `guard-write` checks each file of the patch: phase matrix, one test at a time, mock policy |
+| `args` next to `command` in `hooks.json` is ignored | each hook is a single command string, `node "${CLAUDE_PLUGIN_ROOT}/scripts/…"` |
+| A `PreToolUse` hook that crashes denies the tool call (fail-closed) | hooks exit 0 on any input they do not understand |
+| `Stop` ignores exit 2 | `check-stop` blocks with `{"decision":"block","reason":…}` on stdout |
+| The agent's shell sets `COPILOT_CLI=1` | `tdd.js approve` and `off` refuse it, like `CLAUDECODE` |
+
+Not verified yet under Copilot:
+
+- whether `/tdd:approve` and `/tdd:off` typed in Copilot reach the `UserPromptSubmit` hook, or are
+  taken as unknown slash commands. Until then, approve from your own terminal:
+  `node <plugin>/scripts/tdd.js approve`;
+- the `tdd-tester`, `tdd-implementer` and `tdd-refactorer` agents, written in the Claude Code format;
+- a full Red-Green-Refactor session end to end.
+
+A patch adding one test in each of two files passes the hook; `tdd.js next` still refuses it when
+leaving RED.
 
 ## Usage
 
@@ -191,7 +225,8 @@ agent before approving the list.
 `UserPromptSubmit` hooks fire only on prompts the human types, so `/tdd:approve` and `/tdd:off` are
 applied by `human-gate.js` when the human submits them. `approve.md` and `off.md` set
 `disable-model-invocation: true`. On top of that, `tdd.js approve|off` refuse to run when
-`CLAUDECODE` is set (Claude Code sets it in its Bash tool's shell), and `guard-bash.js` blocks any
+`CLAUDECODE` or `COPILOT_CLI` is set (Claude Code and GitHub Copilot CLI set them in their agent's
+shell), and `guard-bash.js` blocks any
 agent command calling them. A human can still run them from their own terminal.
 
 ## Known limits
