@@ -33,4 +33,61 @@ describe('guard-write: writes allowed per phase', () => {
     assert.match(result.stderr, /Why: /)
     assert.match(result.stderr, /Do instead: .*production code/)
   })
+  it('blocks a Fake in GREEN, like a unit test', () => {
+    const root = aTddProject({ phase: 'GREEN' })
+
+    assert.equal(guardWrite(aWrite(root, 'test/fakes/in-memory-orders.ts', 'export class X {}')).code, BLOCKED)
+  })
+
+  it('blocks a builder in GREEN, like a Fake', () => {
+    const root = aTddProject({ phase: 'GREEN' })
+
+    assert.equal(guardWrite(aWrite(root, 'test/builders/order-builder.ts', 'export const anOrder = 1')).code, BLOCKED)
+  })
+
+  it('lets production code through in GREEN, but freezes the test list', () => {
+    const root = aTddProject({ phase: 'GREEN' })
+
+    assert.equal(guardWrite(aWrite(root, 'src/shipping.ts', 'export const fees = () => 0')).code, ALLOWED)
+    const list = guardWrite(aWrite(root, '.tdd/test-list.md', '- [ ] next case'))
+    assert.equal(list.code, BLOCKED)
+    assert.match(list.stderr, /test list/)
+  })
+  it('blocks production code in RED, and the acceptance tests too', () => {
+    const root = aTddProject({ phase: 'RED' })
+
+    const result = guardWrite(aWrite(root, 'src/foo.ts', 'export const foo = 1'))
+    assert.equal(result.code, BLOCKED)
+    assert.match(result.stderr, /RED.*no production code/)
+    assert.equal(guardWrite(aWrite(root, 'test/acceptance/shipping.test.ts', 'x')).code, BLOCKED)
+  })
+  it('lets one new test and a builder through in RED', () => {
+    const root = aTddProject({ phase: 'RED', state: { unitTestCountAtRed: 1 },
+      files: { 'src/foo.test.ts': "it('one', () => {})" } })
+
+    assert.equal(guardWrite(aWrite(root, 'src/foo.test.ts', "it('one', () => {})\nit('two', () => {})")).code, ALLOWED)
+    assert.equal(guardWrite(aWrite(root, 'test/builders/order-builder.ts', 'export const anOrder = 1')).code, ALLOWED)
+  })
+})
+
+describe('guard-write: one test at a time', () => {
+  const oneTest = "it('one', () => {})"
+  const RED_WITH_ONE_TEST = { phase: 'RED', state: { unitTestCountAtRed: 1 }, files: { 'src/foo.test.ts': oneTest } }
+
+  it('blocks adding two tests at once in one file', () => {
+    const root = aTddProject(RED_WITH_ONE_TEST)
+
+    const result = guardWrite(aWrite(root, 'src/foo.test.ts', `${oneTest}\nit('two', () => {})\nit('three', () => {})`))
+
+    assert.equal(result.code, BLOCKED)
+    assert.match(result.stderr, /one test at a time/)
+    assert.match(result.stderr, /2 new tests/)
+  })
+
+  it('blocks a second new test written in another file', () => {
+    const root = aTddProject({ ...RED_WITH_ONE_TEST,
+      files: { 'src/foo.test.ts': oneTest, 'src/bar.test.ts': "it('new one', () => {})" } })
+
+    assert.equal(guardWrite(aWrite(root, 'src/baz.test.ts', "it('another new one', () => {})")).code, BLOCKED)
+  })
 })
