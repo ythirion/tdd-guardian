@@ -1,0 +1,36 @@
+examples/fizzbuzz-inside-out/.tdd/config.json
+  s_0d25068a86d8ca::t_d0c81bed577052 1-17
+scripts/lib/runner.js
+  s_0d25068a86d8ca::t_1467f32d22727d 6-13,15
+examples/fizzbuzz-inside-out/.tdd/test-list.md
+  s_0d25068a86d8ca::t_d0c81bed577052 1-9
+examples/fizzbuzz-inside-out/test/fizzbuzz.test.js
+  s_0d25068a86d8ca::t_64536b02310cc5 1-27
+examples/fizzbuzz-inside-out/test/support/properties.js
+  s_0d25068a86d8ca::t_d0c81bed577052 1-20
+examples/fizzbuzz-inside-out/package.json
+  s_0d25068a86d8ca::t_d0c81bed577052 1-6
+examples/fizzbuzz-inside-out/src/fizzbuzz.js
+  s_0d25068a86d8ca::t_d0c81bed577052 1-10
+test/examples/fizzbuzz-inside-out.test.js
+  s_0d25068a86d8ca::t_a616466f2aac75 1-20,25-71
+  s_0d25068a86d8ca::t_f461897f2e36fa 21-24
+test/examples/replay.js
+  s_0d25068a86d8ca::t_a616466f2aac75 1-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7ae41afeedf71333a17358444e65c5d20f11252e",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
