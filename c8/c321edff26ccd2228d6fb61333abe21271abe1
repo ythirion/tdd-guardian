@@ -1,0 +1,36 @@
+scripts/lib/cycle.js
+  s_0d25068a86d8ca::t_f71dccf5216d41 9-13,51-53,78-92,117
+  s_0d25068a86d8ca::t_172dcba3b68306 93,95,101-105,113-114,116
+  s_0d25068a86d8ca::t_50752ca53790e8 7-8,96-100,106-112
+  s_0d25068a86d8ca::t_81ba3b78690264 94
+test/cli/tdd.test.js
+  s_0d25068a86d8ca::t_172dcba3b68306 118-134,151
+  s_0d25068a86d8ca::t_1fd344e491d8ab 117,135-150
+  s_0d25068a86d8ca::t_2b7f5fe689cb4e 6,93-116
+scripts/lib/test-list.js
+  s_0d25068a86d8ca::t_50752ca53790e8 34-51
+scripts/lib/measures.js
+  s_0d25068a86d8ca::t_f71dccf5216d41 6-9,11-18,26
+.idea/modules.xml
+  s_0d25068a86d8ca::t_2804bb465f183e 1-8
+.idea/tdd-guardian.iml
+  s_0d25068a86d8ca::t_104e102355c5bc 1-8
+.idea/vcs.xml
+  s_0d25068a86d8ca::t_8b214a95da8008 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c8c321edff26ccd2228d6fb61333abe21271abe1",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
