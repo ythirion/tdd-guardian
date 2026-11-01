@@ -1,0 +1,23 @@
+scripts/check-stop.js
+  s_0d25068a86d8ca::t_9b8b0617b3b117 4,25
+test/hooks/check-stop.test.js
+  s_0d25068a86d8ca::t_86e383d05f6e58 6-13,21-22,29,34,43-45,52-55
+scripts/lib/hook-io.js
+  s_0d25068a86d8ca::t_9b8b0617b3b117 30-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8b01ab2cf615acc31e3be8d008a86efa86e5bc90",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
