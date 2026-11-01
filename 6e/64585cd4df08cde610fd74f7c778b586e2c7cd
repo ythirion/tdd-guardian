@@ -1,0 +1,25 @@
+scripts/lib/state.js
+  s_0d25068a86d8ca::t_b5733f5bfdc40b 1,4,16-17
+  s_0d25068a86d8ca::t_ef8494ffa98fd2 2-3,5-15
+  s_0d25068a86d8ca::t_2ef24a1a190f2d 18-23
+test/lib/state.test.js
+  s_0d25068a86d8ca::t_2ef24a1a190f2d 5,18-22
+  s_0d25068a86d8ca::t_b5733f5bfdc40b 10-17
+  s_0d25068a86d8ca::t_955954de0b99b3 1-4,6-9,23-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e64585cd4df08cde610fd74f7c778b586e2c7cd",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
