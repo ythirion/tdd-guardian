@@ -25,9 +25,12 @@ describe('Plugin packaging', () => {
     assert.ok(manifest.version && manifest.description && manifest.author.name)
     const wired = Object.entries(hooks).flatMap(([event, groups]) =>
       groups.flatMap((group) => group.hooks.map((hook) => ({ event, matcher: group.matcher, hook }))))
-    const scriptOf = ({ hook }) => hook.args[0].replace('${CLAUDE_PLUGIN_ROOT}/', '')
+    // One shell string, no `args`: GitHub Copilot ignores `args` and would run a bare `node`.
+    const COMMAND = /^node "\$\{CLAUDE_PLUGIN_ROOT\}\/(scripts\/[\w-]+\.js)"$/
+    const scriptOf = ({ hook }) => (COMMAND.exec(hook.command) || [])[1]
     for (const entry of wired) {
-      assert.equal(entry.hook.command, 'node')
+      assert.match(entry.hook.command, COMMAND)
+      assert.equal(entry.hook.args, undefined)
       assert.ok(exists(scriptOf(entry)), scriptOf(entry))
     }
     const find = (script) => wired.find((e) => scriptOf(e) === `scripts/${script}`)
