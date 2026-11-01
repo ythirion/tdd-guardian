@@ -65,29 +65,30 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] A22 Exit code 0 is green, anything else is red; the output tail is kept for messages
 
 ## B. `guard-write.js` (PreToolUse `Write|Edit|MultiEdit|NotebookEdit`)
-- [ ] B1 OFF: production, tests and acceptance tests are writable
-- [ ] B2 Any phase: `.tdd/state.json` is blocked
-- [ ] B3 GREEN: an `Edit` on `src/foo.test.ts` is blocked, with a message quoting the rule, the reason and the expected action
-- [ ] B4 GREEN: an `Edit` on `test/fakes/in-memory-orders.ts` is blocked
-- [ ] B5 GREEN: a builder in `test/builders/**` is blocked
-- [ ] B6 GREEN: production code is writable; `.tdd/test-list.md` is blocked
-- [ ] B7 RED: a `Write` on `src/foo.ts` is blocked
-- [ ] B8 RED: writing one new test is allowed; a builder in `test/builders/**` is allowed
-- [ ] B9 RED: adding two tests at once is blocked (one file, then across two files)
-- [ ] B10 RED: adding one `[Property]` / `fc.assert(fc.property(` counts as exactly one new test
-- [ ] B11 RED: adding `it.skip(` is blocked
-- [ ] B12 LIST: everything is blocked except `.tdd/test-list.md`
-- [ ] B13 ACCEPTANCE: a unit test or production code is blocked; one acceptance test is allowed; two are blocked
-- [ ] B14 REFACTOR: production, tests and acceptance tests are writable
-- [ ] B15 `README.md` is writable in every phase
-- [ ] B16 Outside-in, `justify`: a new `jest.fn()` without a reason is blocked, the message points to `references/fakes.md` and suggests a Fake
-- [ ] B17 Outside-in, `justify`: with `tdd-guard: allow-mock <reason>` it passes and is appended to `justifiedMocks`
-- [ ] B18 `forbid`: a justified mock is still blocked
-- [ ] B19 Inside-out, `allow`: `jest.fn()` passes without a reason
-- [ ] B20 `Edit`, `MultiEdit` and `NotebookEdit` payloads are rebuilt into the proposed content
-- [ ] B21 Every written file is recorded in `touchedFiles`
-- [ ] B22 `strict: false`: a blocked case exits 0 with a warning on stderr
-- [ ] B23 Invalid JSON on stdin, or no `.tdd/` at all: lets the tool through (never breaks a non-TDD session)
+- [x] B1 OFF: production, tests and acceptance tests are writable
+- [x] B2 Any phase: `.tdd/state.json` is blocked
+- [x] B3 GREEN: an `Edit` on `src/foo.test.ts` is blocked, with a message quoting the rule, the reason and the expected action
+- [x] B4 GREEN: an `Edit` on `test/fakes/in-memory-orders.ts` is blocked
+- [x] B5 GREEN: a builder in `test/builders/**` is blocked
+- [x] B6 GREEN: production code is writable; `.tdd/test-list.md` is blocked
+- [x] B7 RED: a `Write` on `src/foo.ts` is blocked
+- [x] B8 RED: writing one new test is allowed; a builder in `test/builders/**` is allowed
+- [x] B9 RED: adding two tests at once is blocked (one file, then across two files)
+- [x] B10 RED: adding one `[Property]` / `fc.assert(fc.property(` counts as exactly one new test
+- [x] B11 RED: adding `it.skip(` is blocked
+- [x] B12 LIST: everything is blocked except `.tdd/test-list.md`
+- [x] B13 ACCEPTANCE: a unit test or production code is blocked; one acceptance test is allowed; two are blocked
+- [x] B13b GREEN: acceptance tests are blocked (gap found while building)
+- [x] B14 REFACTOR: production, tests and acceptance tests are writable
+- [x] B15 `README.md` is writable in every phase
+- [x] B16 Outside-in, `justify`: a new `jest.fn()` without a reason is blocked, the message points to `references/fakes.md` and suggests a Fake
+- [x] B17 Outside-in, `justify`: with `tdd-guard: allow-mock <reason>` it passes and is appended to `justifiedMocks`
+- [x] B18 `forbid`: a justified mock is still blocked
+- [x] B19 Inside-out, `allow`: `jest.fn()` passes without a reason
+- [x] B20 `Edit`, `MultiEdit` and `NotebookEdit` payloads are rebuilt into the proposed content
+- [x] B21 Every written file is recorded in `touchedFiles`
+- [x] B22 `strict: false`: a blocked case exits 0 with a warning on stderr
+- [x] B23 Invalid JSON on stdin, or no `.tdd/` at all: lets the tool through (never breaks a non-TDD session)
 
 ## C. `tdd.js` (phase transition CLI)
 - [ ] C1 `start <feature> --mode inside-out` from OFF enters LIST with the mode and writes a test-list skeleton

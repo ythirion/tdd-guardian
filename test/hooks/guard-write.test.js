@@ -1,7 +1,8 @@
 'use strict'
 const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
-const { runHook, aTddProject, aWrite, anEdit } = require('../helpers')
+const { runHook, aTddProject, aWrite, anEdit, readJson, toolCall } = require('../helpers')
+const path = require('node:path')
 
 const guardWrite = (payload) => runHook('guard-write.js', payload)
 const ALLOWED = 0
@@ -154,5 +155,101 @@ describe('guard-write: GREEN, REFACTOR and free files', () => {
     for (const phase of ['OFF', 'LIST', 'ACCEPTANCE', 'RED', 'GREEN', 'REFACTOR']) {
       assert.equal(guardWrite(aWrite(aTddProject({ phase }), 'README.md', '# Shop')).code, ALLOWED, phase)
     }
+  })
+})
+
+describe('guard-write: mock policy', () => {
+  const RED_OUTSIDE_IN = { phase: 'RED', mode: 'outside-in', state: { unitTestCountAtRed: 0 } }
+  const aTestWith = (line) => `it('places the order', () => {\n  ${line}\n})`
+
+  it('outside-in, justify: blocks a new jest.fn() without a reason and suggests a Fake', () => {
+    const root = aTddProject(RED_OUTSIDE_IN)
+
+    const result = guardWrite(aWrite(root, 'src/order.test.ts', aTestWith('const save = jest.fn()')))
+
+    assert.equal(result.code, BLOCKED)
+    assert.match(result.stderr, /jest\.fn\(\)/)
+    assert.match(result.stderr, /references\/fakes\.md/)
+    assert.match(result.stderr, /Fake/)
+    assert.match(result.stderr, /tdd-guard: allow-mock <reason>/)
+  })
+  it('outside-in, justify: lets a mock with a reason through and records it for review', () => {
+    const root = aTddProject(RED_OUTSIDE_IN)
+
+    const result = guardWrite(aWrite(root, 'src/notify.test.ts',
+      aTestWith('const sdk = jest.fn() // tdd-guard: allow-mock third-party SDK with no port')))
+
+    assert.equal(result.code, ALLOWED)
+    assert.deepEqual(readJson(root, '.tdd/state.json').justifiedMocks,
+      [{ file: 'src/notify.test.ts', line: 2, reason: 'third-party SDK with no port' }])
+  })
+  it('forbid: blocks a mock even with a reason', () => {
+    const root = aTddProject({ ...RED_OUTSIDE_IN, config: { mockPolicy: { 'outside-in': 'forbid' } } })
+
+    const result = guardWrite(aWrite(root, 'src/notify.test.ts',
+      aTestWith('const sdk = jest.fn() // tdd-guard: allow-mock third-party SDK with no port')))
+
+    assert.equal(result.code, BLOCKED)
+    assert.match(result.stderr, /forbid/)
+  })
+
+  it('inside-out, allow: lets jest.fn() through without a reason', () => {
+    const root = aTddProject({ phase: 'RED', mode: 'inside-out', state: { unitTestCountAtRed: 0 } })
+
+    assert.equal(guardWrite(aWrite(root, 'src/order.test.ts', aTestWith('const save = jest.fn()'))).code, ALLOWED)
+  })
+})
+
+describe('guard-write: every editing tool', () => {
+  const oneTest = "it('one', () => {})"
+  const RED = { phase: 'RED', state: { unitTestCountAtRed: 2 }, files: { 'src/foo.test.ts': oneTest, 'test/explore.ipynb': oneTest } }
+
+  it('rebuilds the proposed content of Edit (replace_all), MultiEdit and NotebookEdit', () => {
+    const root = aTddProject(RED)
+    const at = (file) => path.join(root, file)
+
+    const replaceAll = toolCall(root, 'Edit', { file_path: at('src/foo.test.ts'), old_string: '{}', new_string: "{})\nit('x', () => {}", replace_all: true })
+    const multi = toolCall(root, 'MultiEdit', { file_path: at('src/foo.test.ts'), edits: [
+      { old_string: oneTest, new_string: `${oneTest}\nit('two', () => {})` },
+      { old_string: "it('two'", new_string: "it('three', () => {})\nit('two'" },
+    ] })
+    const notebook = toolCall(root, 'NotebookEdit', { notebook_path: at('test/explore.ipynb'), new_source: "it('a', () => {})\nit('b', () => {})" })
+
+    assert.equal(guardWrite(replaceAll).code, ALLOWED)
+    assert.equal(guardWrite(multi).code, BLOCKED)
+    assert.equal(guardWrite(notebook).code, BLOCKED)
+  })
+})
+
+describe('guard-write: session bookkeeping', () => {
+  it('records every file written during the session in touchedFiles, once', () => {
+    const root = aTddProject({ phase: 'GREEN' })
+
+    guardWrite(aWrite(root, 'src/shipping.ts', 'a'))
+    guardWrite(aWrite(root, 'src/shipping.ts', 'b'))
+    guardWrite(aWrite(root, 'src/shipping.test.ts', 'blocked in GREEN'))
+
+    assert.deepEqual(readJson(root, '.tdd/state.json').touchedFiles, ['src/shipping.ts'])
+  })
+})
+
+describe('guard-write: never in the way when it should not be', () => {
+  it('with strict: false, warns on stderr and lets the write through', () => {
+    const root = aTddProject({ phase: 'GREEN', config: { strict: false } })
+
+    const result = guardWrite(aWrite(root, 'src/foo.test.ts', 'x'))
+
+    assert.equal(result.code, ALLOWED)
+    assert.match(result.stderr, /warning \(strict: false\)/)
+    assert.match(result.stderr, /tests are read-only/)
+  })
+
+  it('lets the tool through on unreadable input, or in a project that never used the plugin', () => {
+    const { aProject } = require('../helpers')
+    const root = aProject({ 'src/foo.test.ts': 'x' })
+
+    assert.equal(guardWrite('not json').code, ALLOWED)
+    assert.equal(guardWrite(aWrite(root, 'src/foo.test.ts', 'y')).code, ALLOWED)
+    assert.equal(guardWrite(aWrite(root, '.tdd/notes.md', 'y')).code, ALLOWED)
   })
 })

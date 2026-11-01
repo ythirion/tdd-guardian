@@ -14,7 +14,16 @@ const DEFAULT_CONFIG = Object.freeze({
   sourceFilePatterns: ['src/**'],
   freeFilePatterns: ['*.md', '.tdd/test-list.md', 'docs/**'],
   mockPolicy: { 'inside-out': 'allow', 'outside-in': 'justify' },
-  mockPatterns: [],
+  mockPatterns: [
+    'jest\\.(?:fn|mock|spyOn)\\(', // Jest
+    'vi\\.(?:fn|mock|spyOn)\\(', // Vitest
+    'sinon\\.(?:mock|stub|spy)\\(', // Sinon
+    '\\bmock\\.(?:fn|method)\\(', // node:test
+    '\\bMockito\\.(?:mock|verify|when)\\(|@Mock\\b|\\bverify\\(', // Mockito
+    '\\b(?:Magic)?Mock\\(|\\bpatch(?:\\.object)?\\(|\\.assert_called\\w*\\(', // unittest.mock
+    '\\bnew Mock<', // Moq
+    '\\bSubstitute\\.For<', // NSubstitute
+  ],
   mutationCommand: '',
   commitOnGreen: false,
   commitOnRefactor: true,
