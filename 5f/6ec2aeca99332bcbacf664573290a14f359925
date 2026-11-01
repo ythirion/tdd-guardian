@@ -1,0 +1,20 @@
+README.md
+  s_0d25068a86d8ca::t_da79fd37b34a9c 46-68,70-71,174-179
+  s_0d25068a86d8ca::t_b0a999c3ba7a3b 44-45,72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5f6ec2aeca99332bcbacf664573290a14f359925",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
