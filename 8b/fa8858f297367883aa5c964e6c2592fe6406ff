@@ -1,0 +1,31 @@
+skills/tdd/references/property-based.md
+  s_0d25068a86d8ca::t_836211f75a82d2 19,23-24,30-55,59-60,80
+scripts/lib/test-list.js
+  s_0d25068a86d8ca::t_6950fe70948f94 7-13,17-18,20-23,28-29,31-33,36
+skills/tdd/SKILL.md
+  s_0d25068a86d8ca::t_836211f75a82d2 39,42-46
+skills/tdd/references/inside-out.md
+  s_0d25068a86d8ca::t_836211f75a82d2 13-17,20-29,32
+  s_0d25068a86d8ca::t_8827fd6f63f039 33
+skills/tdd/references/outside-in.md
+  s_0d25068a86d8ca::t_836211f75a82d2 14-18,20-21,24-26
+  s_0d25068a86d8ca::t_8a03cc9a9ea43c 27
+test/cli/tdd.test.js
+  s_0d25068a86d8ca::t_be5b278a7eebe1 28-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8bfa8858f297367883aa5c964e6c2592fe6406ff",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
