@@ -1,0 +1,27 @@
+scripts/check-stop.js
+  s_0d25068a86d8ca::t_279a13bac594e9 9,16-17,36-46
+  s_0d25068a86d8ca::t_0f8d2b98709fbb 1-8,10-15,18,28-29,31-35,48-49
+  s_0d25068a86d8ca::t_410923ec3094dd 19-27,30,47
+test/hooks/check-stop.test.js
+  s_0d25068a86d8ca::t_0f8d2b98709fbb 1-18,52
+  s_0d25068a86d8ca::t_410923ec3094dd 19-30
+  s_0d25068a86d8ca::t_279a13bac594e9 31-51
+docs/test-list.md
+  s_0d25068a86d8ca::t_1478a1ad5231da 119-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8cd3eae3c436f0d7ba47a8a6447fc48c8bfd7051",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
