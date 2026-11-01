@@ -1,0 +1,23 @@
+scripts/lib/cycle.js
+  s_0d25068a86d8ca::t_4507f190b4fd13 7,90-91,149-178,183,185
+test/cli/tdd.test.js
+  s_0d25068a86d8ca::t_8f5baf75859e1f 239-281
+scripts/lib/test-list.js
+  s_0d25068a86d8ca::t_4507f190b4fd13 51-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3dae7fbb351f3c3783ce73c1e13c6436b9d612b2",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
