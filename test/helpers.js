@@ -58,10 +58,10 @@ const aWrite = (root, file, content) => toolCall(root, 'Write', { file_path: pat
 const anEdit = (root, file, old_string, new_string) =>
   toolCall(root, 'Edit', { file_path: path.join(root, file), old_string, new_string })
 
-// The phase CLI as a human runs it from a terminal: no CLAUDECODE in the environment.
+// The phase CLI as a human runs it from a terminal: no agent marker (CLAUDECODE, COPILOT_CLI) in the environment.
 function tdd(root, args, env = {}) {
   const cleanEnv = { ...process.env, CLAUDE_PROJECT_DIR: '', ...env }
-  if (!('CLAUDECODE' in env)) delete cleanEnv.CLAUDECODE
+  for (const marker of ['CLAUDECODE', 'COPILOT_CLI']) if (!(marker in env)) delete cleanEnv[marker]
   const result = spawnSync(process.execPath, [path.join(SCRIPTS, 'tdd.js'), ...args], { cwd: root, encoding: 'utf8', env: cleanEnv })
   return { code: result.status, out: `${result.stdout}${result.stderr}` }
 }

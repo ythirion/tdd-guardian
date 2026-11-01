@@ -107,6 +107,15 @@ describe('tdd.js approve', () => {
     assert.equal(phaseOf(list), 'LIST')
     assert.equal(phaseOf(green), 'GREEN')
   })
+  it('refuses approve and off from a GitHub Copilot agent shell (COPILOT_CLI set)', () => {
+    const list = aTddProject({ phase: 'LIST' })
+    const green = aTddProject({ phase: 'GREEN' })
+
+    assert.equal(tdd(list, ['approve'], { COPILOT_CLI: '1' }).code, REFUSED)
+    assert.equal(tdd(green, ['off'], { COPILOT_CLI: '1' }).code, REFUSED)
+    assert.equal(phaseOf(list), 'LIST')
+    assert.equal(phaseOf(green), 'GREEN')
+  })
 })
 
 describe('tdd.js next: ACCEPTANCE to RED', () => {

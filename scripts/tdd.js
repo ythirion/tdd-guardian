@@ -14,9 +14,11 @@ function option(name) {
 }
 const positional = () => rest.filter((arg, i) => !arg.startsWith('--') && !(rest[i - 1] || '').startsWith('--')).join(' ')
 
-// Claude Code sets CLAUDECODE in the shell of its Bash tool: approving or stopping is not the agent's call.
+// The agent's shell is marked: CLAUDECODE (Claude Code), COPILOT_CLI (GitHub Copilot CLI).
+// Approving or stopping is not the agent's call.
+const AGENT_SHELL_MARKERS = ['CLAUDECODE', 'COPILOT_CLI']
 function humanOnly(action) {
-  return () => process.env.CLAUDECODE
+  return () => AGENT_SHELL_MARKERS.some((marker) => process.env[marker])
     ? { ok: false, message: 'tdd-guardian: approve and off are reserved for the human. Why: the test list review and the decision to stop '
       + 'enforcing TDD are human checkpoints. Do instead: ask the human to run /tdd:approve or /tdd:off.' }
     : action()
