@@ -1,0 +1,25 @@
+.gitignore
+  s_0d25068a86d8ca::t_227c939697aae5 1-3
+package.json
+  s_0d25068a86d8ca::t_47344d455930de 1-11
+docs/test-list.md
+  s_0d25068a86d8ca::t_e6a1e99eaad60a 1-150
+spec-tdd-guardian.md
+  s_0d25068a86d8ca::t_cea4c33df286e3 1-692
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "324f84fba0c02b2f860b1ade9809037e2b99c5d3",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
