@@ -1,0 +1,23 @@
+scripts/lib/write-checks.js
+  s_0d25068a86d8ca::t_bbedbff20eadb3 1-49
+test/hooks/guard-write.test.js
+  s_0d25068a86d8ca::t_e8c1b3658f668f 93-109
+scripts/guard-write.js
+  s_0d25068a86d8ca::t_bbedbff20eadb3 4,7,12,20,22,29,32-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3b8ab0a9633e36cb72aa9b48f88ab032eaff9755",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
