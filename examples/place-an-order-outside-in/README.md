@@ -1,16 +1,29 @@
-# Example: place an order, outside-in
+# Example: place an order, outside-in (Java)
 
-The result of a full TDD Guardian session in outside-in mode: two acceptance scenarios, each driving
-inner unit cycles, with Fakes instead of mocks.
+A use case built with the double loop: one red acceptance test per scenario, unit cycles until it
+turns green. `test/examples/place-an-order-outside-in.test.js` replays the whole session through the
+real hooks and Maven, and checks that it ends with exactly these files.
 
-- `test/acceptance/`: one acceptance test per scenario, at the use case boundary.
-- `test/fakes/in-memory-orders.js`: the Fake of the `Orders` port, with an inspection helper `saved()`.
-- `test/builders/order-builder.js`: `anOrder()` with domain defaults, and Object Mothers `aBigOrder()`, `aSmallOrder()`.
-- `test/assertions/order-assertions.js`: business assertions, `theOrder(saved).isShippedFreeOfCharge()`.
-- `test/contracts/orders-contract.js`: the `Orders` contract, run against the Fake **and** the real
-  `JsonFileOrders` adapter (`test/unit/orders.contract.test.js`), so the Fake cannot lie.
-- `src/`: the use case `PlaceOrder`, the `Order` with its shipping rule, the JSON file adapter.
+```sh
+mvn test                # unit suite: acceptance tests are neither compiled nor run
+mvn test -Pacceptance   # acceptance suite
+```
 
-`npm test` runs the unit suite, `npm run test:acceptance` the acceptance suite. The plugin's own test
-suite replays the session through the hooks and `tdd.js`
-(`test/examples/place-an-order-outside-in.test.js`) and checks it produces these exact files.
+## What it shows
+
+- **The first scenario is the non-passing case**: an order without lines is refused and nothing is
+  saved. It decides how the use case reports a refusal before any happy path exists:
+  `PlaceOrder.handle` returns a `Placement` (`Placed` or `Refused`), an error as a value, not an
+  exception.
+- **Every scenario and item says what it drives** (`→ drives:` in `.tdd/test-list.md`). Unit items
+  are added under their scenario as collaborators are discovered.
+- **A Fake, not a mock**: `InMemoryOrders` implements the `Orders` port and exposes `saved()`. A
+  `Mockito.mock(Orders.class)` attempt is blocked in RED with a message suggesting a Fake.
+- **A shared contract test**: `OrdersContract` runs against the Fake and the real `FileOrders`
+  adapter, so the Fake cannot lie.
+- **Test data builders and Object Mothers**: `anOrder()`, `aBigOrder()`, `aSmallOrder()`.
+- **Business assertions**: `theOrder(saved).isShippedFreeOfCharge()`, `.costsShipping(5)`, counted
+  as assertions through `assertionMethodPatterns`.
+
+The pom excludes `**/acceptance/**` from test compilation by default, so a red acceptance test that
+does not compile yet never blocks the inner loop; the `acceptance` profile compiles and runs it.

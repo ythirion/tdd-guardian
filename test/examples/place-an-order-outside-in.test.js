@@ -3,152 +3,207 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const { session } = require('./replay')
+const { session, MAVEN_MISSING } = require('./replay')
 
-// Intermediate versions; the final ones are the example's files.
-const ACCEPTANCE_1 = `'use strict'
-const { describe, it } = require('node:test')
-const { PlaceOrder } = require('../../src/place-an-order')
-const { InMemoryOrders } = require('../fakes/in-memory-orders')
-const { aBigOrder } = require('../builders/order-builder')
-const { theOrder } = require('../assertions/order-assertions')
-
-describe('Place an order', () => {
-  it('saves an order above 50 euros with free shipping', async () => {
-    const orders = new InMemoryOrders()
-
-    await new PlaceOrder(orders).handle(aBigOrder().build())
-
-    theOrder(orders.saved()[0]).isShippedFreeOfCharge()
-  })
-})
-`
-const FAKE_1 = `'use strict'
-// Fake of the Orders port: a small working in-memory implementation, shared by every test.
-class InMemoryOrders {
-  constructor() {
-    this.orders = new Map()
-  }
-
-  async save(order) {
-    this.orders.set(order.id, order)
-  }
-
-  saved() {
-    return [...this.orders.values()]
-  }
+const J = 'src/main/java/shop'
+const T = 'src/test/java/shop'
+const FILES = {
+  acceptance: `${T}/acceptance/PlaceAnOrderAcceptanceTest.java`,
+  fake: `${T}/fakes/InMemoryOrders.java`,
+  builder: `${T}/builders/OrderBuilder.java`,
+  assertions: `${T}/assertions/OrderAssertions.java`,
+  contract: `${T}/contracts/OrdersContract.java`,
+  placeAnOrderTest: `${T}/unit/PlaceAnOrderTest.java`,
+  shippingFeesTest: `${T}/unit/ShippingFeesOfAnOrder.java`,
+  inMemoryContractTest: `${T}/unit/InMemoryOrdersContractTest.java`,
+  fileContractTest: `${T}/unit/FileOrdersContractTest.java`,
+  order: `${J}/Order.java`,
+  orderLine: `${J}/OrderLine.java`,
+  orders: `${J}/Orders.java`,
+  placeOrder: `${J}/PlaceOrder.java`,
+  fileOrders: `${J}/FileOrders.java`,
 }
 
-module.exports = { InMemoryOrders }
-`
-const BUILDER_1 = (final) => final.replace(/const aSmallOrder = .*\n/, '').replace('{ anOrder, aBigOrder, aSmallOrder }', '{ anOrder, aBigOrder }')
-const ASSERTIONS_1 = (final) => final.replace(/\n  costsShipping[\s\S]*?return this\n  },/, '')
-const ORDER_1 = `'use strict'
+// Earlier versions, derived from the final files by removing what later cycles added.
+const without = (text, ...pieces) => pieces.reduce((t, piece) => {
+  assert.ok(typeof piece === 'string' ? t.includes(piece) : piece.test(t), `version piece ${piece}`)
+  return t.replace(piece, '')
+}, text)
+const TEST_METHOD = (name) => new RegExp(`\\n    @Test\\n    void ${name}\\(\\)[\\s\\S]*?\\n    }\\n`)
+const ACCEPTANCE_1 = (final) => without(final, 'import static shop.assertions.OrderAssertions.theOrder;\n',
+  'import static shop.builders.OrderBuilder.aBigOrder;\n', 'import static shop.builders.OrderBuilder.aSmallOrder;\n',
+  TEST_METHOD('savesAnOrderAbove50EurosWithFreeShipping'), TEST_METHOD('savesAnOrderBelow50EurosWith5EurosOfShipping'))
+const ACCEPTANCE_2 = (final) => without(final, 'import static shop.builders.OrderBuilder.aSmallOrder;\n',
+  TEST_METHOD('savesAnOrderBelow50EurosWith5EurosOfShipping'))
+const PLACE_AN_ORDER_1 = (final) => without(final, 'import shop.Order;\n', 'import shop.Placement.Placed;\n',
+  TEST_METHOD('savesAnOrderWithLines'))
+const BUILDER_1 = (final) => without(final, /\n    \/\/ Object Mothers[\s\S]*?(?=\n    public OrderBuilder withoutLines)/)
+const BUILDER_2 = (final) => without(final, /\n    public static OrderBuilder aSmallOrder\(\) \{[\s\S]*?\n    }\n/)
+const ASSERTIONS_1 = (final) => without(final, /\n    public OrderAssertions costsShipping[\s\S]*?\n    }\n/)
+const SHIPPING_1 = (final) => without(final, 'import static shop.builders.OrderBuilder.aSmallOrder;\n',
+  TEST_METHOD('are5EurosBelow50Euros'))
+const FAKE_1 = (final) => without(final, 'import java.util.Optional;\n', /\n    @Override\n    public Optional<Order> byId[\s\S]*?\n    }\n/)
+const ORDERS_1 = (final) => without(final, 'import java.util.Optional;\n\n', '\n    Optional<Order> byId(String id);\n')
 
-class Order {
-  constructor(id, lines, country) {
-    this.id = id
-    this.lines = lines
-    this.country = country
-  }
+const PLACE_ORDER_1 = `package shop;
+
+import shop.Placement.Refused;
+
+public final class PlaceOrder {
+    private final Orders orders;
+
+    public PlaceOrder(Orders orders) {
+        this.orders = orders;
+    }
+
+    public Placement handle(Order order) {
+        return new Refused("an order needs at least one line");
+    }
 }
-
-module.exports = { Order }
 `
-const ORDER_2 = ORDER_1.replace('    this.country = country\n  }\n', '    this.country = country\n  }\n\n  get shippingFees() {\n    return 0\n  }\n')
-const ORDER_3 = ORDER_1.replace('    this.country = country\n  }\n', `    this.country = country
-  }
+const ORDER_1 = `package shop;
 
-  get total() {
-    return this.lines.reduce((sum, line) => sum + line.price * line.quantity, 0)
-  }
+import java.util.List;
 
-  get shippingFees() {
-    return this.total > 50 ? 0 : 5
-  }
-`)
-const UNIT_ORDER_1 = (final) => final.replace(/\n  it\('are 5 euros below[\s\S]*?\}\)\n/, '').replace('{ aBigOrder, aSmallOrder }', '{ aBigOrder }')
+public record Order(String id, List<OrderLine> lines, String country) {
+}
+`
+const ORDER_2 = `package shop;
 
-const SCENARIO_1 = 'Scenario: an order above 50 euros is saved with free shipping'
-const SCENARIO_2 = 'Scenario: an order below 50 euros is saved with 5 euros of shipping'
-const LIST = `# Test list: place an order
+import java.util.List;
 
-Mode: outside-in. One scenario per acceptance test; unit items are added below it as collaborators are discovered.
+public record Order(String id, List<OrderLine> lines, String country) {
+    public int shippingFees() {
+        return 0;
+    }
+}
+`
+const ORDER_3 = `package shop;
 
-- [ ] ${SCENARIO_1}
-      Given an order worth 60 euros When it is placed Then it is saved with no shipping fees
-- [ ] ${SCENARIO_2}
-      Given an order worth 30 euros When it is placed Then it is saved with 5 euros of shipping fees
+import java.util.List;
+
+public record Order(String id, List<OrderLine> lines, String country) {
+    public int total() {
+        return lines.stream().mapToInt(line -> line.price() * line.quantity()).sum();
+    }
+
+    public int shippingFees() {
+        return total() > 50 ? 0 : 5;
+    }
+}
 `
 
-describe('Example: place an order, outside-in', () => {
-  it('runs the double loop end to end with a Fake, a builder, business assertions and a shared contract test', () => {
+describe('Example: place an order in Java, outside-in', () => {
+  it('opens with the refusal scenario, then runs the double loop with a Fake, a builder, business assertions and a shared contract test', { skip: MAVEN_MISSING }, () => {
     const s = session('place-an-order-outside-in')
-    const listNow = () => fs.readFileSync(path.join(s.root, '.tdd/test-list.md'), 'utf8')
-    const addItems = (afterLine, items) => s.write('.tdd/test-list.md',
-      listNow().replace(afterLine, `${afterLine}${items.map((i) => `\n  - [ ] ${i}`).join('')}`))
+    const final = (key) => s.final(FILES[key])
+    const write = (key, content = final(key)) => s.write(FILES[key], content)
+    const listPath = path.join(s.root, '.tdd/test-list.md')
+    const listNow = () => fs.readFileSync(listPath, 'utf8')
+
+    // The list as approved: the scenarios only. Unit items, with their "drives" line, are added as discovered.
+    const finalList = s.final('.tdd/test-list.md')
+    const isUnitItem = (line) => /^ {2}- \[/.test(line)
+    const isItemDetail = (line) => /^ {8}\S/.test(line)
+    const blockOf = (item) => {
+      const lines = finalList.split('\n')
+      const start = lines.findIndex((line) => isUnitItem(line) && line.endsWith(`] ${item}`))
+      let end = start + 1
+      while (isItemDetail(lines[end])) end++
+      return lines.slice(start, end).join('\n').replace('[x]', '[ ]')
+    }
+    const scenariosOnly = finalList.split('\n')
+      .filter((line, i, lines) => !isUnitItem(line) && !(isItemDetail(line) && lines.slice(0, i).reverse().find((l) => !isItemDetail(l)).match(/^ {2}- \[/)))
+      .join('\n').replace(/\[x\]/g, '[ ]')
+    const addItems = (scenario, items) => {
+      const lines = listNow().split('\n')
+      let end = lines.findIndex((line) => line.includes(scenario)) + 1
+      while (end < lines.length && lines[end] !== '' && !/^- \[/.test(lines[end])) end++
+      lines.splice(end, 0, ...items.map(blockOf))
+      s.write('.tdd/test-list.md', lines.join('\n'))
+    }
+    const scenario = (n) => [...finalList.matchAll(/^- \[x\] (Scenario: .+)$/gm)][n][1]
 
     assert.equal(s.tdd('start', 'place an order').code, 0)
-    s.write('.tdd/test-list.md', LIST)
+    s.write('.tdd/test-list.md', scenariosOnly)
     s.human('/tdd:approve')
     assert.equal(s.phase(), 'ACCEPTANCE')
 
-    // Outer loop, scenario 1: the acceptance test fails, its collaborators do not exist yet.
-    s.blocked('test/fakes/in-memory-orders.js', FAKE_1, /ACCEPTANCE/)
-    s.write('test/acceptance/place-an-order.test.js', ACCEPTANCE_1)
+    // Scenario 1, the non-passing case: it decides that a refusal is a value, before any happy path.
+    s.blocked(FILES.fake, FAKE_1(final('fake')), /ACCEPTANCE/)
+    write('acceptance', ACCEPTANCE_1(final('acceptance')))
     s.next('RED')
 
-    // Inner cycle A: the outermost unit, the use case. The Orders role becomes a port with a Fake.
-    addItems('with no shipping fees', ['placing an order saves it', 'shipping is free above 50 euros'])
-    s.blocked('test/unit/place-an-order.test.js', "const save = mock.fn()\nit('saves', () => {})", /Fake/)
-    s.write('test/fakes/in-memory-orders.js', FAKE_1)
-    s.write('test/builders/order-builder.js', BUILDER_1(s.final('test/builders/order-builder.js')))
-    s.write('test/unit/place-an-order.test.js', s.final('test/unit/place-an-order.test.js'))
+    // Cycle A: the use case, its Orders port with a Fake, and Placement. Fake it: always refuse.
+    addItems(scenario(0), ['an order without lines is refused'])
+    s.blocked(FILES.placeAnOrderTest, 'class PlaceAnOrderTest {\n    Orders orders = Mockito.mock(Orders.class);\n    @Test void refuses() {}\n}', /Fake/)
+    write('fake', FAKE_1(final('fake')))
+    write('builder', BUILDER_1(final('builder')))
+    write('placeAnOrderTest', PLACE_AN_ORDER_1(final('placeAnOrderTest')))
     s.next('GREEN')
-    s.write('src/order.js', ORDER_1)
-    s.write('src/place-an-order.js', s.final('src/place-an-order.js'))
+    write('orderLine')
+    write('order', ORDER_1)
+    write('orders', ORDERS_1(final('orders')))
+    s.write(`${J}/Placement.java`, s.final(`${J}/Placement.java`))
+    write('placeOrder', PLACE_ORDER_1)
     s.next('REFACTOR')
-    s.tick('placing an order saves it')
+    s.tick('an order without lines is refused')
+    s.next('ACCEPTANCE')
+    assert.match(listNow(), new RegExp(`- \\[x\\] ${scenario(0)}`))
+
+    // Scenario 2: free shipping above 50 euros.
+    write('acceptance', ACCEPTANCE_2(final('acceptance')))
+    s.next('RED')
+
+    // Cycle B: the refusal becomes a condition; an order with lines is saved.
+    addItems(scenario(1), ['an order with lines is placed and saved', 'shipping is free above 50 euros'])
+    write('placeAnOrderTest')
+    s.next('GREEN')
+    write('placeOrder')
+    s.next('REFACTOR')
+    s.tick('an order with lines is placed and saved')
     assert.match(s.next('RED').out, /acceptance test still red/)
 
-    // Inner cycle B: free shipping, asserted through a business assertion. Fake it.
-    s.write('test/assertions/order-assertions.js', ASSERTIONS_1(s.final('test/assertions/order-assertions.js')))
-    s.write('test/unit/order.test.js', UNIT_ORDER_1(s.final('test/unit/order.test.js')))
+    // Cycle C: free shipping, asserted through a business assertion. Fake it: 0.
+    write('builder', BUILDER_2(final('builder')))
+    write('assertions', ASSERTIONS_1(final('assertions')))
+    write('shippingFeesTest', SHIPPING_1(final('shippingFeesTest')))
     s.next('GREEN')
-    s.write('src/order.js', ORDER_2)
+    write('order', ORDER_2)
     s.next('REFACTOR')
     s.tick('shipping is free above 50 euros')
     s.next('ACCEPTANCE')
-    assert.match(listNow(), new RegExp(`- \\[x\\] ${SCENARIO_1}`))
 
-    // Outer loop, scenario 2.
-    s.write('test/acceptance/place-an-order.test.js', s.final('test/acceptance/place-an-order.test.js'))
+    // Scenario 3: 5 euros of shipping below 50 euros.
+    write('acceptance')
     s.next('RED')
 
-    // Inner cycle C: the paid shipping triangulates the fake; constants extracted in REFACTOR.
-    addItems('with 5 euros of shipping fees', ['shipping costs 5 euros below 50 euros'])
-    s.write('test/builders/order-builder.js', s.final('test/builders/order-builder.js'))
-    s.write('test/assertions/order-assertions.js', s.final('test/assertions/order-assertions.js'))
-    s.write('test/unit/order.test.js', s.final('test/unit/order.test.js'))
+    // Cycle D: paid shipping triangulates the fake 0; the constants are named in REFACTOR.
+    addItems(scenario(2), ['shipping costs 5 euros below 50 euros'])
+    write('builder')
+    write('assertions')
+    write('shippingFeesTest')
     s.next('GREEN')
-    s.write('src/order.js', ORDER_3)
+    write('order', ORDER_3)
     s.next('REFACTOR')
-    s.write('src/order.js', s.final('src/order.js'))
+    write('order')
     s.tick('shipping costs 5 euros below 50 euros')
-    addItems('  - [x] shipping costs 5 euros below 50 euros', ['orders saved in a JSON file honour the Orders contract'])
+    addItems(scenario(2), ['orders saved in a file honour the Orders contract'])
     s.next('RED')
 
-    // Inner cycle D: the real adapter, checked by the same contract test as the Fake.
-    s.write('test/fakes/in-memory-orders.js', s.final('test/fakes/in-memory-orders.js'))
-    s.write('test/contracts/orders-contract.js', s.final('test/contracts/orders-contract.js'))
-    s.write('test/unit/orders.contract.test.js', s.final('test/unit/orders.contract.test.js'))
+    // Cycle E: the real adapter, checked by the same contract test as the Fake.
+    write('fake')
+    write('contract')
+    write('inMemoryContractTest')
+    write('fileContractTest')
     s.next('GREEN')
-    s.write('src/json-file-orders.js', s.final('src/json-file-orders.js'))
+    write('orders')
+    write('fileOrders')
     s.next('REFACTOR')
-    s.tick('orders saved in a JSON file honour the Orders contract')
+    s.tick('orders saved in a file honour the Orders contract')
     s.next('OFF')
 
-    s.assertSameFilesAsExample(['src', 'test'])
-    assert.equal(listNow(), s.final('.tdd/test-list.md'))
+    s.assertSameFilesAsExample(['src'])
+    assert.equal(listNow(), finalList)
   })
 })

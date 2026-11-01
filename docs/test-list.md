@@ -144,9 +144,13 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] G4 `claude plugin validate .` passes (manual check, 2026-11-01)
 
 ## H. Examples (end to end, run by a test that drives `tdd.js` + hooks through a full cycle)
-- [x] H1 FizzBuzz inside-out, with the property "every multiple of 15 is FizzBuzz"
-- [x] H2 "Place an order" outside-in: in-memory repository Fake, shared contract test, `OrderBuilder`
-      with Object Mothers, business assertions on the saved order
+- [x] H1 Luhn number inside-out (Java, Maven), opening with the non-passing case (`parse` returns
+      `Optional.empty()`), ending with a junit-quickcheck round trip: parse then `toString` gives the same String
+- [x] H2 "Place an order" outside-in (Java, Maven), opening with a refused order (`Placement.Refused`),
+      in-memory repository Fake, shared contract test with a file adapter, `OrderBuilder` with Object
+      Mothers, business assertions on the saved order
+- [x] C1b `start` drafts a list that opens with the non-passing case and says what each item drives
+      (added on request, 2026-11-01)
 
 ## I. Docs
 - [x] I1 README: installation, configuration, both modes, Fakes vs mocks, known limits (Bash guard is a heuristic)

@@ -1,0 +1,29 @@
+{
+  "defaultMode": "inside-out",
+  "testCommand": "mvn -q test",
+  "acceptanceCommand": "",
+  "testFilePatterns": [
+    "src/test/**"
+  ],
+  "acceptanceTestPatterns": [],
+  "fakePatterns": [],
+  "testSupportPatterns": [
+    "src/test/java/luhn/generators/**"
+  ],
+  "assertionMethodPatterns": [],
+  "sourceFilePatterns": [
+    "src/main/**"
+  ],
+  "freeFilePatterns": [
+    "*.md",
+    ".tdd/test-list.md"
+  ],
+  "mockPolicy": {
+    "inside-out": "allow",
+    "outside-in": "justify"
+  },
+  "mutationCommand": "mvn -q org.pitest:pitest-maven:mutationCoverage",
+  "commitOnGreen": false,
+  "commitOnRefactor": false,
+  "strict": true
+}

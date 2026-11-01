@@ -7,14 +7,19 @@ const os = require('node:os')
 const path = require('node:path')
 const { runHook, tdd, toolCall, readJson } = require('../helpers')
 
+const { spawnSync } = require('node:child_process')
+
 const EXAMPLES = path.join(__dirname, '..', '..', 'examples')
 
-function session(example) {
+// The Java examples run their real Maven build; without Maven they are skipped, not failed.
+const MAVEN_MISSING = spawnSync('mvn', ['-v'], { shell: true }).status === 0 ? false : 'Maven is not installed'
+
+// A fresh project holding only the example's build file and TDD config, as before /tdd:start.
+function session(example, buildFiles = ['pom.xml']) {
   const exampleDir = path.join(EXAMPLES, example)
   const root = fs.mkdtempSync(path.join(os.tmpdir(), `tdd-${example}-`))
   fs.mkdirSync(path.join(root, '.tdd'))
-  fs.copyFileSync(path.join(exampleDir, '.tdd/config.json'), path.join(root, '.tdd/config.json'))
-  fs.copyFileSync(path.join(exampleDir, 'package.json'), path.join(root, 'package.json'))
+  for (const file of ['.tdd/config.json', ...buildFiles]) fs.copyFileSync(path.join(exampleDir, file), path.join(root, file))
 
   const phase = () => readJson(root, '.tdd/state.json').phase
   const attempt = (rel, content) => runHook('guard-write.js',
@@ -61,7 +66,7 @@ function session(example) {
       const list = (base, dir) => {
         const full = path.join(base, dir)
         if (!fs.existsSync(full)) return []
-        return fs.readdirSync(full, { recursive: true }).map(String)
+        return fs.readdirSync(full, { recursive: true }).map(String).filter((f) => !f.startsWith('target'))
           .filter((f) => fs.statSync(path.join(full, f)).isFile()).map((f) => path.join(dir, f).split(path.sep).join('/')).sort()
       }
       for (const dir of dirs) {
@@ -75,4 +80,4 @@ function session(example) {
   return s
 }
 
-module.exports = { session }
+module.exports = { session, MAVEN_MISSING }
