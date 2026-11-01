@@ -116,11 +116,11 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] C22 `mutate` runs `mutationCommand` on `touchedFiles`, prints the install hint when the tool is missing, never fails
 
 ## D. `check-stop.js` (Stop)
-- [ ] D1 GREEN with a red unit suite: stopping is blocked
-- [ ] D2 GREEN with `stop_hook_active`: stopping is allowed with a warning
-- [ ] D3 REFACTOR with a red unit suite: blocked
-- [ ] D4 RED with no new failing test: blocked with a reminder
-- [ ] D5 OFF, LIST, or green suite: allowed
+- [x] D1 GREEN with a red unit suite: stopping is blocked
+- [x] D2 GREEN with `stop_hook_active`: stopping is allowed with a warning
+- [x] D3 REFACTOR with a red unit suite: blocked
+- [x] D4 RED with no new failing test: blocked with a reminder
+- [x] D5 OFF, LIST, or green suite: allowed
 
 ## E. `guard-bash.js` (PreToolUse `Bash`)
 - [ ] E1 GREEN: `sed -i` on a test file is blocked
