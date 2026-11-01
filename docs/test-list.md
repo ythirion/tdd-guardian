@@ -92,28 +92,28 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] B23 Invalid JSON on stdin, or no `.tdd/` at all: lets the tool through (never breaks a non-TDD session)
 
 ## C. `tdd.js` (phase transition CLI)
-- [ ] C1 `start <feature> --mode inside-out` from OFF enters LIST with the mode and writes a test-list skeleton
-- [ ] C2 `start` without `--mode` uses `defaultMode`; creates `.tdd/config.json` from detection when missing
-- [ ] C3 `start` / `mode` refuse to change the mode outside OFF and LIST
-- [ ] C4 `next` in LIST refuses: approval is human-only
-- [ ] C5 Inside-out: `approve` goes from LIST to RED and records the test count
-- [ ] C6 Outside-in: `approve` goes from LIST to ACCEPTANCE
-- [ ] C7 `approve` / `off` are refused when run from an agent shell (`CLAUDECODE` set)
-- [ ] C8 ACCEPTANCE → RED: refused with zero or two new acceptance tests, or a green acceptance suite; accepted with one new failing acceptance test
-- [ ] C9 RED → GREEN: refused when the unit suite is green
-- [ ] C10 RED → GREEN: refused with two new tests; accepted with one new failing test; records the test-code hash
-- [ ] C11 GREEN → REFACTOR: refused when the unit suite is red
-- [ ] C12 GREEN → REFACTOR: refused when test, Fake or test support files changed; accepted otherwise; records the assertion count
-- [ ] C13 REFACTOR: refused when the suite is red, when the assertion count dropped, or when the current item is not ticked
-- [ ] C14 REFACTOR: extracting three assertions into a business assertion matching `assertionMethodPatterns` is accepted
-- [ ] C15 Inside-out REFACTOR → RED while unticked items remain; → OFF when all are ticked
-- [ ] C16 Outside-in REFACTOR → RED while the acceptance test is red
-- [ ] C17 Outside-in REFACTOR → ACCEPTANCE once the acceptance test is green with scenarios left
-- [ ] C18 Outside-in REFACTOR → OFF when every scenario is green and every item ticked
-- [ ] C19 Every refusal explains which condition failed and what to do
-- [ ] C20 `status` prints mode, phase, current test, acceptance test, list progress, last run, justified mocks and the review checklist
-- [ ] C21 `commitOnRefactor` commits with a Conventional Commit message when the project is a git repo (skipped otherwise)
-- [ ] C22 `mutate` runs `mutationCommand` on `touchedFiles`, prints the install hint when the tool is missing, never fails
+- [x] C1 `start <feature> --mode inside-out` from OFF enters LIST with the mode and writes a test-list skeleton
+- [x] C2 `start` without `--mode` uses `defaultMode`; creates `.tdd/config.json` from detection when missing
+- [x] C3 `start` / `mode` refuse to change the mode outside OFF and LIST
+- [x] C4 `next` in LIST refuses: approval is human-only
+- [x] C5 Inside-out: `approve` goes from LIST to RED and records the test count
+- [x] C6 Outside-in: `approve` goes from LIST to ACCEPTANCE
+- [x] C7 `approve` / `off` are refused when run from an agent shell (`CLAUDECODE` set)
+- [x] C8 ACCEPTANCE → RED: refused with zero or two new acceptance tests, or a green acceptance suite; accepted with one new failing acceptance test
+- [x] C9 RED → GREEN: refused when the unit suite is green
+- [x] C10 RED → GREEN: refused with two new tests; accepted with one new failing test; records the test-code hash
+- [x] C11 GREEN → REFACTOR: refused when the unit suite is red
+- [x] C12 GREEN → REFACTOR: refused when test, Fake or test support files changed; accepted otherwise; records the assertion count
+- [x] C13 REFACTOR: refused when the suite is red, when the assertion count dropped, or when the current item is not ticked
+- [x] C14 REFACTOR: extracting three assertions into a business assertion matching `assertionMethodPatterns` is accepted
+- [x] C15 Inside-out REFACTOR → RED while unticked items remain; → OFF when all are ticked
+- [x] C16 Outside-in REFACTOR → RED while the acceptance test is red
+- [x] C17 Outside-in REFACTOR → ACCEPTANCE once the acceptance test is green with scenarios left
+- [x] C18 Outside-in REFACTOR → OFF when every scenario is green and every item ticked
+- [x] C19 Every refusal explains which condition failed and what to do
+- [x] C20 `status` prints mode, phase, current test, acceptance test, list progress, last run, justified mocks and the review checklist
+- [x] C21 `commitOnRefactor` commits with a Conventional Commit message when the project is a git repo (skipped otherwise)
+- [x] C22 `mutate` runs `mutationCommand` on `touchedFiles`, prints the install hint when the tool is missing, never fails
 
 ## D. `check-stop.js` (Stop)
 - [ ] D1 GREEN with a red unit suite: stopping is blocked

@@ -279,3 +279,64 @@ describe('tdd.js next: outside-in double loop', () => {
     assert.equal(phaseOf(root), 'OFF')
   })
 })
+
+describe('tdd.js refusals', () => {
+  it('say which phase you are still in, before the reason and the action', () => {
+    const result = tdd(inRefactor({ config: { testCommand: RED_SUITE } }), ['next'])
+
+    assert.match(result.out, /^tdd\.js next refused \(still in REFACTOR\): The unit suite is red/)
+  })
+})
+
+describe('tdd.js status', () => {
+  it('shows mode, phase, current and acceptance tests, progress, last run, justified mocks and the review checklist', () => {
+    const root = aTddProject({ phase: 'GREEN', mode: 'outside-in', files: {
+      '.tdd/test-list.md': '- [ ] Scenario: free shipping\n  - [x] a\n  - [ ] b\n' }, state: {
+      currentTest: 'b', acceptanceTest: 'test/acceptance/shipping.test.ts',
+      lastRun: { unitGreen: false, acceptanceGreen: false, at: '2026-11-01T10:12:00Z' },
+      justifiedMocks: [{ file: 'test/notify.test.ts', line: 18, reason: 'third-party SDK with no port' }] } })
+
+    const { code, out } = tdd(root, ['status'])
+
+    assert.equal(code, OK)
+    for (const expected of [/Mode: outside-in/, /Phase: GREEN/, /Current test: b/, /Acceptance test: test\/acceptance\/shipping\.test\.ts/,
+      /Unit items: 1\/2 ticked/, /Scenarios: 0\/1 green/, /unit red, acceptance red/,
+      /test\/notify\.test\.ts:18 third-party SDK with no port/, /Would I understand this test in five seconds/]) {
+      assert.match(out, expected)
+    }
+  })
+})
+
+describe('tdd.js commits', () => {
+  const { execSync } = require('node:child_process')
+  const git = (root, args) => execSync(`git ${args}`, { cwd: root, encoding: 'utf8' }).trim()
+
+  it('commits at the end of REFACTOR with a Conventional Commit message when the project is a git repo', () => {
+    const root = inRefactor({ config: { commitOnRefactor: true } })
+    git(root, 'init -q && git config user.email t@example.com && git config user.name Test && git add -A && git commit -qm init')
+    writeFile(root, 'src/fizzbuzz.ts', "export const fizzbuzz = (n) => (n % 3 === 0 ? 'Fizz' : String(n))")
+
+    assert.equal(tdd(root, ['next']).code, OK)
+
+    assert.equal(git(root, 'log -1 --format=%s'), 'feat(shipping-fees): says Fizz for 3')
+    assert.equal(git(root, 'status --porcelain'), '')
+  })
+})
+
+describe('tdd.js mutate', () => {
+  it('runs mutationCommand on the production files touched, prints an install hint when the tool is missing, never fails', () => {
+    const touchedFiles = ['src/shipping.ts', 'src/shipping.test.ts', 'src/fees.ts']
+    const echo = 'node -e "console.log(\'mutating \' + process.argv[1])" {files}'
+    const root = aTddProject({ phase: 'REFACTOR', config: { mutationCommand: echo }, state: { touchedFiles } })
+    const missing = aTddProject({ phase: 'REFACTOR', config: { mutationCommand: 'no-such-mutation-tool-xyz run {files}' }, state: { touchedFiles } })
+
+    const run = tdd(root, ['mutate'])
+    const notInstalled = tdd(missing, ['mutate'])
+
+    assert.equal(run.code, OK)
+    assert.match(run.out, /mutating src\/shipping\.ts,src\/fees\.ts/)
+    assert.match(run.out, /side effect/)
+    assert.equal(notInstalled.code, OK)
+    assert.match(notInstalled.out, /not installed/)
+  })
+})

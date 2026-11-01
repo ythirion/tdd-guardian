@@ -6,6 +6,7 @@ const path = require('node:path')
 const { loadConfig, configPath, detectConfig, DEFAULT_CONFIG } = require('./config')
 const { writeSkeleton, readItems, unitItems, scenarios, firstOpen, tick } = require('./test-list')
 const { hashTestCode } = require('./hash')
+const { commitAll, commitMessage } = require('./git')
 const { testCount, testCountsByFile, filesWithNewTests, assertionCount } = require('./measures')
 const { runSuite } = require('./runner')
 
@@ -198,7 +199,11 @@ const NEXT = {
 
 function next(root) {
   const state = loadState(root)
-  return NEXT[state.phase](root, state, loadConfig(root))
+  const config = loadConfig(root)
+  const result = NEXT[state.phase](root, state, config)
+  if (!result.ok) return refuse(`tdd.js next refused (still in ${state.phase}): ${result.message}`)
+  const message = commitMessage(state.phase, state, config)
+  return message ? { ...result, message: `${result.message}\n(${commitAll(root, message)})` } : result
 }
 
 module.exports = { start, setMode, approve, off, next }

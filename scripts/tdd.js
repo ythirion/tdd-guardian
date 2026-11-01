@@ -2,6 +2,8 @@
 'use strict'
 // Phase transition CLI. The agent may run `next`, `status` and `mutate`; `approve` and `off` are human-only.
 const cycle = require('./lib/cycle')
+const { statusReport } = require('./lib/status')
+const { mutate } = require('./lib/mutate')
 
 const root = process.env.CLAUDE_PROJECT_DIR || process.cwd()
 const [command, ...rest] = process.argv.slice(2)
@@ -24,6 +26,8 @@ const commands = {
   start: () => cycle.start(root, { feature: positional(), mode: option('mode') }),
   mode: () => cycle.setMode(root, positional()),
   next: () => cycle.next(root),
+  status: () => ({ ok: true, message: statusReport(root) }),
+  mutate: () => mutate(root),
   approve: humanOnly(() => cycle.approve(root)),
   off: humanOnly(() => cycle.off(root)),
 }

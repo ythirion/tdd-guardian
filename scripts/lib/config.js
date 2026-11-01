@@ -49,7 +49,7 @@ const PRESETS = {
     testCommand: 'npm test --silent -- --testPathIgnorePatterns acceptance',
     acceptanceCommand: 'npm test --silent -- test/acceptance',
     testFilePatterns: ['**/*.test.*', '**/*.spec.*', 'test/**'],
-    mutationCommand: 'npx stryker run',
+    mutationCommand: 'npx stryker run --mutate {files}',
   },
   maven: {
     testCommand: 'mvn -q test -Dtest="!*AcceptanceTest"',
@@ -68,7 +68,7 @@ const PRESETS = {
     acceptanceTestPatterns: ['tests/acceptance/**'],
     fakePatterns: ['tests/fakes/**'],
     testSupportPatterns: ['tests/builders/**', 'tests/assertions/**'],
-    mutationCommand: 'mutmut run',
+    mutationCommand: 'mutmut run --paths-to-mutate {files}',
   },
   dotnet: {
     testCommand: 'dotnet test --filter "Category!=Acceptance"',
@@ -77,7 +77,7 @@ const PRESETS = {
     acceptanceTestPatterns: ['**/Acceptance/**'],
     fakePatterns: ['**/Doubles/**'],
     testSupportPatterns: ['**/Builders/**', '**/Assertions/**'],
-    mutationCommand: 'dotnet stryker',
+    mutationCommand: 'dotnet stryker --mutate {files}',
   },
 }
 
