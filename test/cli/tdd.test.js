@@ -236,3 +236,46 @@ describe('tdd.js next: leaving REFACTOR', () => {
     assert.match(result.out, /every item is ticked/)
   })
 })
+
+describe('tdd.js next: outside-in double loop', () => {
+  const twoScenarios = [
+    '- [ ] Scenario: free shipping above 50 euros',
+    '  - [x] says Fizz for 3',
+    '  - [ ] an order worth 60 has no fees',
+    '- [ ] Scenario: 5 euros below 50 euros',
+    '',
+  ].join('\n')
+  const outsideIn = (acceptanceCommand, list = twoScenarios) => inRefactor({ mode: 'outside-in', list,
+    config: { acceptanceCommand }, state: { currentScenario: 'Scenario: free shipping above 50 euros' } })
+
+  it('goes back to RED while the acceptance test is red', () => {
+    const root = outsideIn(RED_SUITE)
+
+    const result = tdd(root, ['next'])
+
+    assert.equal(result.code, OK, result.out)
+    assert.equal(phaseOf(root), 'RED')
+    assert.match(result.out, /acceptance test still red/)
+  })
+
+  it('goes to ACCEPTANCE once the acceptance test is green with scenarios left, ticking the scenario', () => {
+    const root = outsideIn(GREEN_SUITE)
+
+    const result = tdd(root, ['next'])
+
+    assert.equal(result.code, OK, result.out)
+    assert.equal(phaseOf(root), 'ACCEPTANCE')
+    assert.match(fs.readFileSync(path.join(root, '.tdd/test-list.md'), 'utf8'), /- \[x\] Scenario: free shipping above 50 euros/)
+  })
+
+  it('goes to OFF when every scenario is green and every item ticked', () => {
+    const lastScenario = '- [x] Scenario: free shipping above 50 euros\n  - [x] says Fizz for 3\n- [ ] Scenario: 5 euros below 50 euros\n'
+    const root = inRefactor({ mode: 'outside-in', list: lastScenario, config: { acceptanceCommand: GREEN_SUITE },
+      state: { currentScenario: 'Scenario: 5 euros below 50 euros' } })
+
+    const result = tdd(root, ['next'])
+
+    assert.equal(result.code, OK, result.out)
+    assert.equal(phaseOf(root), 'OFF')
+  })
+})

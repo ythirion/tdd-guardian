@@ -4,7 +4,7 @@ const { loadState, saveState, canChangeMode, MODES } = require('./state')
 const fs = require('node:fs')
 const path = require('node:path')
 const { loadConfig, configPath, detectConfig, DEFAULT_CONFIG } = require('./config')
-const { writeSkeleton, readItems, unitItems, firstOpen } = require('./test-list')
+const { writeSkeleton, readItems, unitItems, scenarios, firstOpen, tick } = require('./test-list')
 const { hashTestCode } = require('./hash')
 const { testCount, testCountsByFile, filesWithNewTests, assertionCount } = require('./measures')
 const { runSuite } = require('./runner')
@@ -87,7 +87,8 @@ function leaveAcceptance(root, state, config) {
       + 'Check it exercises the new behaviour through the use case or API boundary.')
   }
   const [acceptanceTest] = filesWithNewTests(root, config, 'acceptance', state.acceptanceTestCountsAtAcceptance)
-  return done(root, { ...enterRed(root, config, state), acceptanceTest, lastRun: lastRun({ acceptanceGreen: false }) },
+  const currentScenario = firstOpen(scenarios(readItems(root))) || state.currentScenario
+  return done(root, { ...enterRed(root, config, state), acceptanceTest, currentScenario, lastRun: lastRun({ acceptanceGreen: false }) },
     `Acceptance test red, as expected (${acceptanceTest}). RED: write the first unit test the acceptance test needs, `
     + 'starting from the outermost unit; name any new collaborator as a port and give it a Fake.')
 }
@@ -145,15 +146,43 @@ function refactorExitProblem(root, state, config, items) {
   return null
 }
 
+const featureDone = (root, state, run) => done(root, { ...state, phase: 'OFF', lastRun: lastRun(run) },
+  `Feature "${state.feature}" done: every item is ticked, every scenario green, the suite is green. OFF. `
+  + 'Consider /tdd:mutate to check the tests bite.')
+
+// Outside-in: the acceptance test decides between the inner loop (RED) and the next scenario.
+function leaveRefactorOutsideIn(root, state, config) {
+  const acceptance = runSuite(config.acceptanceCommand, root)
+  const run = { unitGreen: true, acceptanceGreen: acceptance.green }
+  if (!acceptance.green) {
+    const next = firstOpen(unitItems(readItems(root)))
+    return done(root, { ...enterRed(root, config, state), lastRun: lastRun(run) },
+      `The acceptance test still red (${state.acceptanceTest || 'acceptance suite'}). RED: `
+      + (next ? `write exactly one unit test for "${next}".`
+        : 'no unit item is left for it: add to .tdd/test-list.md the next unit item the acceptance test needs, then write its test.'))
+  }
+  if (state.currentScenario) tick(root, state.currentScenario)
+  const items = readItems(root)
+  const nextScenario = firstOpen(scenarios(items))
+  if (nextScenario) {
+    return done(root, { ...enterAcceptance(root, config, state), lastRun: lastRun(run) },
+      `Acceptance test green: "${state.currentScenario}" done. ACCEPTANCE: write the acceptance test for "${nextScenario}".`)
+  }
+  const nextItem = firstOpen(unitItems(items))
+  if (nextItem) {
+    return done(root, { ...enterRed(root, config, state), lastRun: lastRun(run) },
+      `Every scenario is green, unit items remain. RED: write exactly one unit test for "${nextItem}".`)
+  }
+  return featureDone(root, state, run)
+}
+
 function leaveRefactor(root, state, config) {
   const items = readItems(root)
   const problem = refactorExitProblem(root, state, config, items)
   if (problem) return refuse(problem)
+  if (state.mode === 'outside-in') return leaveRefactorOutsideIn(root, state, config)
   const next = firstOpen(unitItems(items))
-  if (!next) {
-    return done(root, { ...state, phase: 'OFF', lastRun: lastRun({ ...state.lastRun, unitGreen: true }) },
-      `Feature "${state.feature}" done: every item is ticked and the suite is green. OFF. Consider /tdd:mutate to check the tests bite.`)
-  }
+  if (!next) return featureDone(root, state, { unitGreen: true })
   return done(root, { ...enterRed(root, config, state), lastRun: lastRun({ ...state.lastRun, unitGreen: true }) },
     `RED: write exactly one unit test for "${next}", see it fail, then \`tdd.js next\`.`)
 }

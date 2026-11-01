@@ -48,4 +48,13 @@ const unitItems = (items) => items.filter((item) => !item.scenario)
 const scenarios = (items) => items.filter((item) => item.scenario)
 const firstOpen = (items) => (items.find((item) => !item.done) || {}).text
 
-module.exports = { listPath, writeSkeleton, readItems, unitItems, scenarios, firstOpen }
+// Ticks one item; used by tdd.js for a scenario whose acceptance test it saw green.
+function tick(root, text) {
+  const lines = fs.readFileSync(listPath(root), 'utf8').split('\n')
+  const index = lines.findIndex((line) => { const m = ITEM.exec(line); return m && m[3] === text })
+  if (index === -1) return
+  lines[index] = lines[index].replace('[ ]', '[x]')
+  fs.writeFileSync(listPath(root), lines.join('\n'))
+}
+
+module.exports = { listPath, writeSkeleton, readItems, unitItems, scenarios, firstOpen, tick }
