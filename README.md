@@ -41,9 +41,35 @@ the exit conditions, the agent cannot talk its way past them.
 
 ### Phases
 
+Six phases, two modes. Every arrow is checked by `tdd.js next`, except the ones marked 👤, which
+only a human can take. ACCEPTANCE exists in outside-in mode only.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> OFF
+    OFF --> LIST: /tdd:start
+    LIST --> RED: 👤 /tdd:approve<br/>(inside-out)
+    LIST --> ACCEPTANCE: 👤 /tdd:approve<br/>(outside-in)
+    ACCEPTANCE --> RED: one new acceptance test,<br/>failing
+    RED --> GREEN: one new unit test,<br/>unit suite red
+    GREEN --> REFACTOR: unit suite green,<br/>test code hash unchanged
+    REFACTOR --> RED: items left (inside-out)<br/>acceptance test red (outside-in)
+    REFACTOR --> ACCEPTANCE: acceptance test green,<br/>scenarios left
+    REFACTOR --> OFF: everything ticked and green
+
+    note right of ACCEPTANCE
+        outer loop: one red acceptance test
+        per scenario, wired to Fakes
+    end note
+    note right of GREEN
+        tests, Fakes and test support
+        are read-only and hashed
+    end note
 ```
-OFF → LIST → (outside-in: ACCEPTANCE →) RED → GREEN → REFACTOR → RED | ACCEPTANCE | OFF
-```
+
+Leaving REFACTOR always requires a green unit suite, an assertion count no lower than on entering
+REFACTOR, and the current item ticked. From any phase, 👤 `/tdd:off` turns the guard off.
 
 | Phase | Writable | Exit condition checked by `tdd.js next` |
 | --- | --- | --- |
@@ -145,8 +171,12 @@ agent before approving the list.
     test in RED/ACCEPTANCE; lets go when `stop_hook_active` is set;
   - `session-start.js` (SessionStart): reminds the agent of the mode, phase, tests and rules;
   - `human-gate.js` (UserPromptSubmit): performs `/tdd:approve` and `/tdd:off`, typed by the human.
-- `examples/`: FizzBuzz inside-out (with a property) and "place an order" outside-in (Fake, contract
-  test, builder with Object Mothers, business assertions). Both are replayed end to end by the test suite.
+- `examples/` (Java 21, Maven): a Luhn number inside-out, from the non-passing case to a
+  parse/toString round-trip property with junit-quickcheck, and "place an order" outside-in, opening
+  with a refused order (an error as a value) then a Fake, a contract test shared with a file adapter,
+  a builder with Object Mothers and business assertions. Each example keeps its test list in
+  `.tdd/test-list.md`, with what each item drives. Both are replayed end to end by the test suite
+  (skipped when Maven is not installed).
 
 ## How "human only" works
 
