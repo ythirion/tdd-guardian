@@ -1,0 +1,17 @@
+{
+  "defaultMode": "outside-in",
+  "testCommand": "node --test test/unit/*.test.js",
+  "acceptanceCommand": "node --test test/acceptance/*.test.js",
+  "testFilePatterns": ["test/**"],
+  "acceptanceTestPatterns": ["test/acceptance/**"],
+  "fakePatterns": ["test/fakes/**"],
+  "testSupportPatterns": ["test/builders/**", "test/assertions/**", "test/contracts/**"],
+  "assertionMethodPatterns": ["\\.(is|costs|has)\\w*\\("],
+  "sourceFilePatterns": ["src/**"],
+  "freeFilePatterns": ["*.md", ".tdd/test-list.md"],
+  "mockPolicy": { "inside-out": "allow", "outside-in": "justify" },
+  "mutationCommand": "",
+  "commitOnGreen": false,
+  "commitOnRefactor": false,
+  "strict": true
+}

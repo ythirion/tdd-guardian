@@ -144,8 +144,8 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] G4 `claude plugin validate .` passes (manual check, 2026-11-01)
 
 ## H. Examples (end to end, run by a test that drives `tdd.js` + hooks through a full cycle)
-- [ ] H1 FizzBuzz inside-out, with the property "every multiple of 15 is FizzBuzz"
-- [ ] H2 "Place an order" outside-in: in-memory repository Fake, shared contract test, `OrderBuilder`
+- [x] H1 FizzBuzz inside-out, with the property "every multiple of 15 is FizzBuzz"
+- [x] H2 "Place an order" outside-in: in-memory repository Fake, shared contract test, `OrderBuilder`
       with Object Mothers, business assertions on the saved order
 
 ## I. Docs

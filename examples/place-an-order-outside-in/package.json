@@ -1,0 +1,9 @@
+{
+  "name": "example-place-an-order-outside-in",
+  "private": true,
+  "description": "TDD Guardian example: placing an order, built outside-in with a Fake and a shared contract test",
+  "scripts": {
+    "test": "node --test test/unit/*.test.js",
+    "test:acceptance": "node --test test/acceptance/*.test.js"
+  }
+}
