@@ -47,3 +47,46 @@ describe('tdd.js start', () => {
     assert.equal(readJson(list, '.tdd/state.json').mode, 'outside-in')
   })
 })
+
+describe('tdd.js approve', () => {
+  it('refuses next in LIST: only a human approves the test list', () => {
+    const root = aTddProject({ phase: 'LIST' })
+
+    const result = tdd(root, ['next'])
+
+    assert.equal(result.code, REFUSED)
+    assert.match(result.out, /\/tdd:approve/)
+    assert.equal(phaseOf(root), 'LIST')
+  })
+
+  it('inside-out: goes from LIST to RED and records the unit test count', () => {
+    const root = aTddProject({ phase: 'LIST', mode: 'inside-out', files: { 'src/a.test.ts': "it('a', () => {})" } })
+
+    const result = tdd(root, ['approve'])
+
+    assert.equal(result.code, OK, result.out)
+    assert.equal(phaseOf(root), 'RED')
+    assert.equal(readJson(root, '.tdd/state.json').unitTestCountAtRed, 1)
+  })
+  it('outside-in: goes from LIST to ACCEPTANCE and records the acceptance test count', () => {
+    const root = aTddProject({ phase: 'LIST', mode: 'outside-in' })
+
+    assert.equal(tdd(root, ['approve']).code, OK)
+    assert.equal(phaseOf(root), 'ACCEPTANCE')
+    assert.equal(readJson(root, '.tdd/state.json').acceptanceTestCountAtAcceptance, 0)
+  })
+
+  it('refuses approve and off from an agent shell (CLAUDECODE set)', () => {
+    const list = aTddProject({ phase: 'LIST' })
+    const green = aTddProject({ phase: 'GREEN' })
+
+    const approveByAgent = tdd(list, ['approve'], { CLAUDECODE: '1' })
+    const offByAgent = tdd(green, ['off'], { CLAUDECODE: '1' })
+
+    assert.equal(approveByAgent.code, REFUSED)
+    assert.match(approveByAgent.out, /human/)
+    assert.equal(offByAgent.code, REFUSED)
+    assert.equal(phaseOf(list), 'LIST')
+    assert.equal(phaseOf(green), 'GREEN')
+  })
+})

@@ -12,9 +12,20 @@ function option(name) {
 }
 const positional = () => rest.filter((arg, i) => !arg.startsWith('--') && !(rest[i - 1] || '').startsWith('--')).join(' ')
 
+// Claude Code sets CLAUDECODE in the shell of its Bash tool: approving or stopping is not the agent's call.
+function humanOnly(action) {
+  return () => process.env.CLAUDECODE
+    ? { ok: false, message: 'tdd-guard: approve and off are reserved for the human. Why: the test list review and the decision to stop '
+      + 'enforcing TDD are human checkpoints. Do instead: ask the human to run /tdd:approve or /tdd:off.' }
+    : action()
+}
+
 const commands = {
   start: () => cycle.start(root, { feature: positional(), mode: option('mode') }),
   mode: () => cycle.setMode(root, positional()),
+  next: () => cycle.next(root),
+  approve: humanOnly(() => cycle.approve(root)),
+  off: humanOnly(() => cycle.off(root)),
 }
 
 const run = commands[command]
