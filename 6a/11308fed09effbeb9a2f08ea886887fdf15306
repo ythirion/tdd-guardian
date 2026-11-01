@@ -1,0 +1,21 @@
+test/plugin/packaging.test.js
+  s_0d25068a86d8ca::t_bee58f18eee6ed 28-30,32-33
+hooks/hooks.json
+  s_0d25068a86d8ca::t_bee58f18eee6ed 10,20,30,41,52,63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6a11308fed09effbeb9a2f08ea886887fdf15306",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
