@@ -1,0 +1,23 @@
+test/helpers.js
+  s_0d25068a86d8ca::t_4904ab3665ad5d 61,64
+scripts/tdd.js
+  s_0d25068a86d8ca::t_4904ab3665ad5d 17-19,21
+test/cli/tdd.test.js
+  s_0d25068a86d8ca::t_4904ab3665ad5d 110-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9001b2277d0f723045da4a21c58521296e7427d7",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
