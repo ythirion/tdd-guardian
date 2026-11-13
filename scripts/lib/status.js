@@ -17,7 +17,7 @@ const PHASE_RULES = {
   ACCEPTANCE: 'Write one acceptance test (Fakes for every port), see it fail, then `tdd.js next`. No unit test, no production code.',
   RED: 'Write exactly one unit test (plus Fakes and test support), see it fail for the right reason, then `tdd.js next`. No production code.',
   GREEN: 'Minimal production code only: tests, Fakes and test support are read-only. Then `tdd.js next`.',
-  REFACTOR: 'Improve code and tests, behaviour unchanged, green after every change, no check removed. Tick the item, then `tdd.js next`.',
+  REFACTOR: 'Improve code and tests, behaviour unchanged, green after every change, no check removed. Tick the item, then `tdd.js next`; on a review pause, show your work and wait for the human to type /tdd:next.',
 }
 
 const progress = (items) => `${items.filter((i) => i.done).length}/${items.length}`

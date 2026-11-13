@@ -90,6 +90,10 @@ they are read-only and hashed. Whole unit suite green, then `tdd.js next`.
 - Green after every change. Never remove a check (the assertion count is compared).
 - Run the review checklist below, tick the item in `.tdd/test-list.md`, then `tdd.js next`.
   In outside-in, `next` runs the acceptance suite: red → back to RED, green → next scenario.
+- **Review pause** (`reviewBetweenItems`, on by default): when the item is done, `next` answers
+  "Review pause" and you stay in REFACTOR. Stop there: show the human the test, the production code,
+  the refactoring and the suite output, and wait. Only the human starts the next item, by typing
+  `/tdd:next`. Never work around the pause.
 
 ## 6. Always
 

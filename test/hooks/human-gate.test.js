@@ -22,6 +22,15 @@ describe('human-gate', () => {
     assert.equal(other.stdout, '')
   })
 
+  it('moves on to the next item when the human types /tdd:next after the review pause', () => {
+    const root = aTddProject({ phase: 'REFACTOR', state: { currentTest: 'a', assertionCountAtRefactor: 0 },
+      files: { '.tdd/test-list.md': '- [x] a\n- [ ] b\n' } })
+
+    const result = humanTypes(root, '/tdd:next')
+
+    assert.equal(phaseOf(root), 'RED')
+    assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /the human ran \/tdd:next/)
+  })
   it('turns the guardian off when the human types /tdd:off', () => {
     const root = aTddProject({ phase: 'GREEN' })
 

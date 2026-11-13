@@ -18,8 +18,9 @@ const positional = () => rest.filter((arg, i) => !arg.startsWith('--') && !(rest
 // The agent's shell is marked: CLAUDECODE (Claude Code), COPILOT_CLI (GitHub Copilot CLI).
 // Approving or stopping is not the agent's call.
 const AGENT_SHELL_MARKERS = ['CLAUDECODE', 'COPILOT_CLI']
+const inAgentShell = () => AGENT_SHELL_MARKERS.some((marker) => process.env[marker])
 function humanOnly(action) {
-  return () => AGENT_SHELL_MARKERS.some((marker) => process.env[marker])
+  return () => inAgentShell()
     ? { ok: false, message: 'tdd-guardian: approve and off are reserved for the human. Why: the test list review and the decision to stop '
       + 'enforcing TDD are human checkpoints. Do instead: ask the human to run /tdd:approve or /tdd:off.' }
     : action()
@@ -30,7 +31,7 @@ const commands = {
     stack: { language: option('language'), testing: option('test-stack'), additional: option('stack') } }),
   detect: () => ({ ok: true, message: JSON.stringify(detectStack(root)) }),
   mode: () => cycle.setMode(root, positional()),
-  next: () => cycle.next(root),
+  next: () => cycle.next(root, { byHuman: !inAgentShell() }),
   status: () => ({ ok: true, message: statusReport(root) }),
   mutate: () => mutate(root),
   approve: humanOnly(() => cycle.approve(root)),

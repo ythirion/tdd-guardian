@@ -115,6 +115,8 @@ and checking exit code and stderr. Test commands of the fixture projects are rea
 - [x] C21 `commitOnRefactor` commits with a Conventional Commit message when the project is a git repo (skipped otherwise)
 - [x] C23 `detect` reads language, test stack and additional stack from `pom.xml`, `build.gradle`, `package.json`, `pyproject.toml`, `*.csproj` (added on request, 2026-11-01)
 - [x] C24 `start` deduces the stack from the existing code; with `--language/--test-stack/--stack` (asked by `/tdd:start` only in an empty repository) it picks the preset and records `config.stack`
+- [x] C25 `reviewBetweenItems` (default true): the agent's `next` pauses in REFACTOR before the next item or scenario; the human resumes with `/tdd:next` or from their terminal; no pause at the end of the feature (added on request, 2026-11-13)
+- [x] F6 UserPromptSubmit `/tdd:next` performs the move as the human, ending a review pause
 - [x] C22 `mutate` runs `mutationCommand` on `touchedFiles`, prints the install hint when the tool is missing, never fails
 
 ## D. `check-stop.js` (Stop)

@@ -200,10 +200,19 @@ function leaveRefactorOutsideIn(root, state, config) {
   return featureDone(root, state, run)
 }
 
-function leaveRefactor(root, state, config) {
+// Work left after the current item: the next unit item, or a scenario other than the current one.
+const workLeft = (state, items) => Boolean(firstOpen(unitItems(items))
+  || (state.mode === 'outside-in' && scenarios(items).some((s) => !s.done && s.text !== state.currentScenario)))
+
+const REVIEW_PAUSE = (item) => `Review pause: "${item}" is done. Stay in REFACTOR (suite green, item ticked) and hand back `
+  + 'to the human: show the test, the production code, the refactoring and the suite output, then ask them to review '
+  + 'and type /tdd:next to start the next item. Why: the human stays in charge of every step (reviewBetweenItems).'
+
+function leaveRefactor(root, state, config, { byHuman }) {
   const items = readItems(root)
   const problem = refactorExitProblem(root, state, config, items)
   if (problem) return refuse(problem)
+  if (!byHuman && config.reviewBetweenItems && workLeft(state, items)) return { ...refuse(REVIEW_PAUSE(state.currentTest)), pause: true }
   if (state.mode === 'outside-in') return leaveRefactorOutsideIn(root, state, config)
   const next = firstOpen(unitItems(items))
   if (!next) return featureDone(root, state, { unitGreen: true })
@@ -220,10 +229,12 @@ const NEXT = {
   LIST: () => refuse('The test list must be approved by a human: ask them to review .tdd/test-list.md and run /tdd:approve.'),
 }
 
-function next(root) {
+// byHuman: the human typed /tdd:next or ran tdd.js from their own terminal; only they end a review pause.
+function next(root, { byHuman = true } = {}) {
   const state = loadState(root)
   const config = loadConfig(root)
-  const result = NEXT[state.phase](root, state, config)
+  const result = NEXT[state.phase](root, state, config, { byHuman })
+  if (result.pause) return result
   if (!result.ok) return refuse(`tdd.js next refused (still in ${state.phase}): ${result.message}`)
   const message = commitMessage(state.phase, state, config)
   return message ? { ...result, message: `${result.message}\n(${commitAll(root, message)})` } : result

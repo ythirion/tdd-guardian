@@ -73,13 +73,27 @@ leaving RED.
 | --- | --- | --- |
 | `/tdd:start <feature> [--mode inside-out\|outside-in]` | human or agent | Deduces the stack from the existing code (`package.json`, `pom.xml`, `build.gradle`, `pyproject.toml`, `*.csproj`); in an empty repository only, asks for it with selections: language, then test stack, then additional stack (Spring Boot, Express... or a description). Creates `.tdd/config.json` for it, sets the mode, enters LIST and drafts `.tdd/test-list.md` |
 | `/tdd:approve` | **human only** | Approves the test list: LIST → RED (inside-out) or ACCEPTANCE (outside-in) |
-| `/tdd:next` | human or agent | Moves one phase forward if the exit conditions hold, otherwise says which one failed |
+| `/tdd:next` | human or agent | Moves one phase forward if the exit conditions hold, otherwise says which one failed. Typed by the human, it also ends a review pause |
 | `/tdd:status` | anyone | Mode, phase, current test, acceptance test, list progress, last run, justified mocks, review checklist |
 | `/tdd:mutate` | anyone | Mutation testing on the files touched in the feature; survivors become list items |
 | `/tdd:off` | **human only** | Turns the guardian off |
 
-The agent can chain cycles by running `node <plugin>/scripts/tdd.js next` itself: the script checks
-the exit conditions, the agent cannot talk its way past them.
+The agent moves through the phases of a cycle by running `node <plugin>/scripts/tdd.js next` itself:
+the script checks the exit conditions, the agent cannot talk its way past them.
+
+### The human reviews every item
+
+By default (`reviewBetweenItems: true`), the agent cannot start the next item of the test list on
+its own. Once an item is done, its `tdd.js next` answers **Review pause** and the cycle stays in
+REFACTOR, suite green, item ticked. The agent hands back with the test, the production code, the
+refactoring and the suite output. You read, ask for changes if needed, then type `/tdd:next` to start
+the next item. The end of the feature (back to OFF) needs no pause.
+
+```
+… GREEN → REFACTOR → ⏸ review pause → 👤 /tdd:next → RED (next item) …
+```
+
+Set `"reviewBetweenItems": false` in `.tdd/config.json` to let the agent chain the items.
 
 ### Phases
 
@@ -111,7 +125,8 @@ stateDiagram-v2
 ```
 
 Leaving REFACTOR always requires a green unit suite, an assertion count no lower than on entering
-REFACTOR, and the current item ticked. From any phase, 👤 `/tdd:off` turns the guardian off.
+REFACTOR, and the current item ticked. With `reviewBetweenItems` (the default), leaving it for the
+next item or scenario also takes 👤 `/tdd:next`. From any phase, 👤 `/tdd:off` turns the guardian off.
 
 | Phase | Writable | Exit condition checked by `tdd.js next` |
 | --- | --- | --- |
@@ -174,6 +189,7 @@ agent before approving the list.
   "mockPolicy": { "inside-out": "allow", "outside-in": "justify" },
   "mockPatterns": ["jest\\.fn\\(", "jest\\.mock\\(", "vi\\.mock\\(", "sinon\\.(mock|stub)\\("],
   "mutationCommand": "npx stryker run --mutate {files}",
+  "reviewBetweenItems": true,
   "commitOnGreen": false,
   "commitOnRefactor": true,
   "strict": true
@@ -195,6 +211,7 @@ agent before approving the list.
 | `mockPolicy` | Per mode: `allow`, `justify` or `forbid` |
 | `mockPatterns` | Regexes for mocking-library calls (defaults cover the libraries above) |
 | `mutationCommand` | Used by `/tdd:mutate`; `{files}` is replaced by the touched production files, comma-separated |
+| `reviewBetweenItems` | `true` (default): the agent stops in REFACTOR after each item and only the human starts the next one with `/tdd:next`. `false`: the agent chains the items |
 | `commitOnGreen` / `commitOnRefactor` | Automatic Conventional Commit at the end of GREEN / REFACTOR, when the project is a git repo |
 | `strict` | `false` = warn instead of block (discovery mode for students) |
 
@@ -223,12 +240,13 @@ agent before approving the list.
 
 ## How "human only" works
 
-`UserPromptSubmit` hooks fire only on prompts the human types, so `/tdd:approve` and `/tdd:off` are
-applied by `human-gate.js` when the human submits them. `approve.md` and `off.md` set
+`UserPromptSubmit` hooks fire only on prompts the human types, so `/tdd:approve`, `/tdd:off` and
+`/tdd:next` (which ends a review pause) are applied by `human-gate.js` when the human submits them. `approve.md` and `off.md` set
 `disable-model-invocation: true`. On top of that, `tdd.js approve|off` refuse to run when
 `CLAUDECODE` or `COPILOT_CLI` is set (Claude Code and GitHub Copilot CLI set them in their agent's
 shell), and `guard-bash.js` blocks any
-agent command calling them. A human can still run them from their own terminal.
+agent command calling them. The same markers tell `tdd.js next` that the agent is asking, so it
+keeps the review pause. A human can still run all of them from their own terminal.
 
 ## Known limits
 

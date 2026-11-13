@@ -261,6 +261,47 @@ describe('tdd.js next: leaving REFACTOR', () => {
   })
 })
 
+describe('tdd.js next: the human reviews each finished item (reviewBetweenItems, on by default)', () => {
+  const byTheAgent = { CLAUDECODE: '1' }
+
+  it('pauses in REFACTOR when the agent asks for the next item, and says to show the work and ask the human', () => {
+    const root = inRefactor()
+
+    const result = tdd(root, ['next'], byTheAgent)
+
+    assert.equal(result.code, REFUSED)
+    assert.equal(phaseOf(root), 'REFACTOR')
+    assert.match(result.out, /Review pause: "says Fizz for 3" is done/)
+    assert.match(result.out, /\/tdd:next/)
+  })
+  it('lets the human move on to the next item, from their terminal', () => {
+    const root = inRefactor()
+
+    assert.equal(tdd(root, ['next']).code, OK)
+    assert.equal(phaseOf(root), 'RED')
+  })
+  it('lets the agent chain the items when reviewBetweenItems is false', () => {
+    const root = inRefactor({ config: { reviewBetweenItems: false } })
+
+    assert.equal(tdd(root, ['next'], byTheAgent).code, OK)
+    assert.equal(phaseOf(root), 'RED')
+  })
+  it('does not pause at the end of the feature', () => {
+    const root = inRefactor({ list: '- [x] says 1 for 1\n- [x] says Fizz for 3\n' })
+
+    assert.equal(tdd(root, ['next'], byTheAgent).code, OK)
+    assert.equal(phaseOf(root), 'OFF')
+  })
+  it('pauses before the next scenario in outside-in too', () => {
+    const root = inRefactor({ mode: 'outside-in', config: { acceptanceCommand: GREEN_SUITE },
+      list: '- [ ] Scenario: free shipping\n  - [x] says Fizz for 3\n- [ ] Scenario: paid shipping\n',
+      state: { currentScenario: 'Scenario: free shipping' } })
+
+    assert.equal(tdd(root, ['next'], byTheAgent).code, REFUSED)
+    assert.equal(phaseOf(root), 'REFACTOR')
+  })
+})
+
 describe('tdd.js next: outside-in double loop', () => {
   const twoScenarios = [
     '- [ ] Scenario: free shipping above 50 euros',

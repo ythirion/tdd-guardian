@@ -25,6 +25,7 @@ const DEFAULT_CONFIG = Object.freeze({
     '\\bSubstitute\\.For<', // NSubstitute
   ],
   mutationCommand: '',
+  reviewBetweenItems: true,
   commitOnGreen: false,
   commitOnRefactor: true,
   strict: true,

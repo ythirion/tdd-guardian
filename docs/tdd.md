@@ -78,7 +78,7 @@ Each mistake Kent Beck lists maps to a phase of TDD Guardian and a check it enfo
 | 3. Make it pass | deleting assertions, editing the test until it passes | GREEN | tests, Fakes and test support are read-only; the test-code hash is checked when leaving GREEN |
 | 3. Make it pass | mixing refactoring into make-it-pass | GREEN → REFACTOR | refactoring has its own phase, entered only with a green suite |
 | 4. Refactor | abstracting too soon: "duplication is a hint, not a command" | REFACTOR | the skill asks for triangulation: fake it first, generalise when a second example forces it |
-| 5. Repeat | | REFACTOR → RED | `tdd.js next` goes back to RED while items remain, and to OFF when the list is empty |
+| 5. Repeat | | REFACTOR → RED | `tdd.js next` goes back to RED while items remain, and to OFF when the list is empty. By default the agent pauses after each item: the human reviews it and starts the next one with `/tdd:next` |
 
 A few things TDD Guardian adds on top of the canon, all in [the skill](../skills/tdd/SKILL.md):
 
@@ -87,6 +87,8 @@ A few things TDD Guardian adds on top of the canon, all in [the skill](../skills
   [avoid exceptions](https://xtrem-tdd.netlify.app/flavours/design/avoid-exceptions/).
 - **Each example forces one more piece of code**, so the list grows the thinnest complete
   implementation.
+- **The human stays in charge of every step.** After each item, the agent stops and shows its work;
+  only the human starts the next item (`reviewBetweenItems`, on by default).
 - **Refactoring is not optional here.** Every cycle passes through REFACTOR, even when it changes
   nothing, so the review checklist is always run.
 - **Two modes**: inside-out, from the core rules outwards, and outside-in, the double loop with Fakes.
