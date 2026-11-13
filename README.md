@@ -1,5 +1,7 @@
 # TDD Guardian
 
+![TDD Guardian](img/tdd-guardian.webp)
+
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?logo=claude&logoColor=white)](https://docs.claude.com/en/docs/claude-code/plugins)
 [![GitHub Copilot CLI: experimental](https://img.shields.io/badge/GitHub%20Copilot%20CLI-experimental-8957E5?logo=githubcopilot&logoColor=white)](#github-copilot-cli-experimental)
 [![Built with Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-D97757?logo=claude&logoColor=white)](https://claude.com/claude-code)
