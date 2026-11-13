@@ -1,0 +1,41 @@
+scripts/lib/config.js
+  s_0d25068a86d8ca::t_e1ef233a154a10 28
+scripts/tdd.js
+  s_0d25068a86d8ca::t_e1ef233a154a10 21,23,34
+commands/next.md
+  s_0d25068a86d8ca::t_81313052e53909 6-10,12-14
+docs/test-list.md
+  s_0d25068a86d8ca::t_3cdaa9eb3271de 118-119
+scripts/human-gate.js
+  s_0d25068a86d8ca::t_e1ef233a154a10 4-5,9,16-17
+test/cli/tdd.test.js
+  s_0d25068a86d8ca::t_886e8b5d37942c 264-304
+README.md
+  s_0d25068a86d8ca::t_3cdaa9eb3271de 76,81-96,128-129,192,214,243-244,248-249
+skills/tdd/SKILL.md
+  s_0d25068a86d8ca::t_3cdaa9eb3271de 93-96
+test/hooks/human-gate.test.js
+  s_0d25068a86d8ca::t_886e8b5d37942c 25-33
+scripts/lib/cycle.js
+  s_0d25068a86d8ca::t_e1ef233a154a10 203-211,215,232-233,236-237
+docs/tdd.md
+  s_0d25068a86d8ca::t_3cdaa9eb3271de 81,90-91
+scripts/lib/status.js
+  s_0d25068a86d8ca::t_7c8571e42812dc 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b592363459fc9a1239183b03dded65d6868d7891",
+  "prompts": {},
+  "sessions": {
+    "s_0d25068a86d8ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f19cb056-419f-4b89-999b-07aa12e1175a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yoan Thirion <yoan.thirion@gmail.com>"
+    }
+  }
+}
